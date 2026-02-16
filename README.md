@@ -1,68 +1,131 @@
 # CIRCUIT
 
-Create music. Own everything. Scale globally.
+Production as a programmable primitive.
 
-Circuit is a creator first production and royalty ecosystem built for Solana Mobile. It unifies music creation, ownership, and monetization into a single interface.
+Circuit is a creator-first production and royalty infrastructure built for Solana.
 
-Produce. Retain master ownership. Distribute globally.
-
-Built as a mobile native Web3 production layer.
+It embeds ownership logic directly into the creation layer. Production and monetization are not separate systems. They are unified.
 
 ---
 
-## Overview
+## The Structural Problem
 
-Circuit allows creators to:
+Music production and monetization are architecturally disconnected.
 
-- Build beats inside the app
-- Record vocals directly
-- Visualize programmable splits
-- Connect wallet
-- Prepare distribution logic
+Creation tools optimize for workflow.  
+Distribution platforms optimize for capture.  
 
-Circuit merges production and monetization into one system.
+Ownership becomes secondary. Revenue routing becomes opaque.
+
+This misalignment is systemic.
+
+---
+
+## The Insight
+
+The production interface is the highest leverage surface in the creator stack.
+
+If ownership logic lives at the moment of creation:
+
+• Splits become programmable  
+• Revenue routing becomes native  
+• Mobile devices become economic terminals  
+• Distribution becomes composable  
+
+Production is not just a tool.  
+It is an economic control point.
+
+---
+
+## What Circuit Does
+
+Circuit unifies:
+
+• Beat creation  
+• Vocal recording  
+• Wallet connectivity  
+• Visual split allocation  
+• Ecosystem growth modeling  
+
+Ownership is embedded at creation, not applied after release.
 
 ---
 
 ## Why Solana Mobile
 
-Seeker transforms the phone into a Web3 device.
+Solana Mobile introduces a wallet-native device class.
 
-Circuit transforms that device into a production and ownership terminal.
+Seeker is not simply hardware.  
+It is a secure Web3 computing environment.
 
-Production and programmable revenue exist in the same interface.
+Circuit turns that environment into:
+
+• A production terminal  
+• A programmable revenue surface  
+• A creator ownership interface  
+
+Low latency. Low cost. High composability.
 
 ---
 
-## Features
+## Mechanism Design
+
+Circuit introduces:
+
+1. Creation-first revenue logic  
+2. Visual split allocation primitives  
+3. Ecosystem growth modeling  
+4. Future on-chain enforcement  
+
+As creator adoption increases:
+
+• Community allocation expands  
+• Platform risk decreases  
+• Revenue logic decentralizes  
+
+This is infrastructure, not a feature set.
+
+---
+
+## Current Capabilities
 
 ### Create
-- Beat grid
-- Multi instrument support
+- Beat grid production
+- Multi-instrument layers
 - Sound manipulation controls
 - Tempo control
-- Microphone recording
-- Session save
+- Session playback
+
+### Microphone
+- Native device recording
+- Export capability
 
 ### Royalties
 - Split allocation diagram
-- Ecosystem growth model
-- Community roadmap
-- Visual token allocation logic
+- Ecosystem growth visualization
+- Revenue flow modeling
 
 ---
 
-## Tech Stack
+## Roadmap
 
-- React
-- Vite
-- Web Audio API
-- Solana Wallet Adapter
-- Anchor
+Phase 1  
+Production interface and royalty modeling
+
+Phase 2  
+On-chain split enforcement
+
+Phase 3  
+Distribution pipeline integration
+
+Phase 4  
+Creator governance and programmable allocation
 
 ---
 
 ## Status
+
+Circuit began as part of the World Labs concept in 2023 and evolved into a Solana-based decentralized application.
 
 This is my first decentralized application.
 
