@@ -1,0 +1,168 @@
+@keyframes waveMove {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+body {
+  margin: 0;
+  font-family: system-ui;
+  background: radial-gradient(circle at center, #0a0f2a 0%, black 70%);
+}
+
+.section-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.section-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: 200ms ease;
+}
+
+@keyframes padClick {
+  0% { transform: scale(1); opacity:0.8; }
+  50% { transform: scale(1.1); opacity:1; }
+  100% { transform: scale(1); opacity:1; }
+}
+
+.pad-active {
+  animation: padClick 0.15s ease;
+}
+
+@keyframes drive {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes padClick {
+  0% { transform: scale(1); opacity:0.8; }
+  50% { transform: scale(1.1); opacity:1; }
+  100% { transform: scale(1); opacity:1; }
+}
+
+.pad-active {
+  animation: padClick 0.15s ease;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.5px;
+}
+
+h1, h2, h3 {
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.section-title {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #00F0FF;
+}
+
+.subtle-text {
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.5px;
+}
+
+h1, h2, h3 {
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.section-title {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #00F0FF;
+}
+
+.subtle-text {
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.5px;
+}
+
+h1,h2,h3 {
+  font-weight:500;
+  letter-spacing:1px;
+}
+
+@keyframes drive {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes padClick {
+  0% { transform: scale(1); opacity:0.8; }
+  50% { transform: scale(1.1); opacity:1; }
+  100% { transform: scale(1); opacity:1; }
+}
+
+.pad-active {
+  animation: padClick 0.15s ease;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.5px;
+}
+
+h1,h2,h3 {
+  font-weight:500;
+  letter-spacing:1px;
+}
+
+@keyframes drive {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes padClick {
+  0% { transform: scale(1); opacity:0.8; }
+  50% { transform: scale(1.1); opacity:1; }
+  100% { transform: scale(1); opacity:1; }
+}
+
+.pad-active {
+  animation: padClick 0.15s ease;
+}
+
+.pageFade {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.allocationBarAnimated div {
+  transition: width 1s ease;
+}
+
+.growthCurveAnimated {
+  position: relative;
+  height: 220px;
+}
+
+.growthCurveAnimated::after {
+  content: "";
+  position: absolute;
+  width: 80%;
+  height: 3px;
+  background: #00F0FF;
+  top: 60%;
+  left: 10%;
+  transform: rotate(-10deg);
+  box-shadow: 0 0 12px #00F0FF;
+}

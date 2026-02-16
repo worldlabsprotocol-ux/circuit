@@ -1,0 +1,51 @@
+/* ====== TYPOGRAPHY ====== */
+
+.app-title {
+  font-weight: 600;
+  letter-spacing: 1.4px;
+}
+
+.sidebar-section {
+  font-weight: 500;
+  letter-spacing: 1.2px;
+}
+
+.sidebar-item {
+  font-weight: 400;
+  transition: all 160ms ease;
+}
+
+.sidebar-item:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.sidebar-item.active {
+  font-weight: 500;
+}
+
+/* ====== BUTTONS ====== */
+
+.ui-button {
+  transition: all 160ms ease;
+}
+
+.ui-button:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* ====== ENTRANCE ANIMATION ====== */
+
+@keyframes uiFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ui-enter {
+  animation: uiFadeIn 220ms ease-out both;
+}

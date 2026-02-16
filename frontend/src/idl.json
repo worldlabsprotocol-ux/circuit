@@ -1,0 +1,98 @@
+{
+  "address": "Csq7ee2oxRqpSvVQa53aVeVZi2yxHS5kSLSBE28urd3s",
+  "metadata": {
+    "name": "circuit_royalty",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "execute_split",
+      "discriminator": [
+        6,
+        45,
+        171,
+        40,
+        49,
+        129,
+        23,
+        89
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "producer",
+          "writable": true
+        },
+        {
+          "name": "writer",
+          "writable": true
+        },
+        {
+          "name": "engineer",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "total_lamports",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "RoyaltyExecuted",
+      "discriminator": [
+        55,
+        251,
+        45,
+        50,
+        16,
+        104,
+        22,
+        168
+      ]
+    }
+  ],
+  "types": [
+    {
+      "name": "RoyaltyExecuted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "total",
+            "type": "u64"
+          },
+          {
+            "name": "producer",
+            "type": "u64"
+          },
+          {
+            "name": "writer",
+            "type": "u64"
+          },
+          {
+            "name": "engineer",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}

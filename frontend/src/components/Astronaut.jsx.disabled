@@ -1,0 +1,25 @@
+export default function Astronaut() {
+  return (
+    <div
+      style={{
+        width: "64px",
+        marginTop: "12px",
+        marginBottom: "16px",
+        pointerEvents: "none",
+        display: "flex",
+        justifyContent: "center"
+      }}
+    >
+      <img
+        src="/atlas-astronaut.png"
+        alt="Atlas Astronaut"
+        style={{
+          width: "100%",
+          height: "auto",
+          opacity: 0.95
+        }}
+        draggable="false"
+      />
+    </div>
+  )
+}

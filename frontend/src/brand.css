@@ -1,0 +1,31 @@
+:root {
+  --accent-purple: #9b59ff;
+  --accent-purple-soft: rgba(155, 89, 255, 0.18);
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont;
+}
+
+.app-title {
+  font-size: 15px;
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+.panel {
+  background: #0e1320;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+}
+
+.panel-header {
+  font-size: 11px;
+  letter-spacing: 1.4px;
+  opacity: 0.6;
+  margin-bottom: 8px;
+}
+
+.touch {
+  min-height: 40px;
+}

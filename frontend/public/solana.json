@@ -1,0 +1,8 @@
+{
+  "name": "WL Studio",
+  "description": "Decentralized music production studio built on Solana",
+  "category": "Music",
+  "network": "devnet",
+  "wallets": ["phantom"],
+  "permissions": ["wallet"]
+}

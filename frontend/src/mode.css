@@ -1,0 +1,14 @@
+.mode-enter {
+  animation: modeIn 160ms ease-out both;
+}
+
+@keyframes modeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

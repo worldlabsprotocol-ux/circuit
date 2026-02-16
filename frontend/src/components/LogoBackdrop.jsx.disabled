@@ -1,0 +1,37 @@
+import { useEffect, useRef } from "react"
+
+export default function LogoBackdrop() {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    let t = 0
+    let frame
+    const animate = () => {
+      t += 0.002
+      if (ref.current) {
+        ref.current.style.transform = `translate(-50%, -50%) translateY(${Math.sin(t) * 8}px)`
+      }
+      frame = requestAnimationFrame(animate)
+    }
+    animate()
+    return () => cancelAnimationFrame(frame)
+  }, [])
+
+  return (
+    <img
+      ref={ref}
+      src="/atlas-astronaut.png"
+      style={{
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        width: "420px",
+        opacity: 0.18,
+        pointerEvents: "none",
+        zIndex: 1,
+        filter: "blur(0.5px)"
+      }}
+      draggable="false"
+    />
+  )
+}

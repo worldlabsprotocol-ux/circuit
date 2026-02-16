@@ -1,0 +1,10 @@
+{
+  "signals": {
+    "price": false,
+    "liquidity": false,
+    "activity": false
+  },
+  "confidence": 0,
+  "safetyOracle": "PASS",
+  "reasoningHash": "78b41863ce10cd3be6cf094eb0c17b82fd554049fa704e3e0a9a09f03699c14b"
+}
