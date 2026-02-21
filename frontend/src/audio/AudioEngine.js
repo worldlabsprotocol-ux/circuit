@@ -1,52 +1,79 @@
-class AudioEngine {
-  constructor() {
-    this.ctx = new (window.AudioContext || window.webkitAudioContext)()
+let audioContext = null
 
-    this.masterBus = this.ctx.createGain()
-    this.musicBus = this.ctx.createGain()
-    this.drumsBus = this.ctx.createGain()
-    this.fxBus = this.ctx.createGain()
-
-    this.limiter = this.ctx.createDynamicsCompressor()
-    this.limiter.threshold.value = -6
-    this.limiter.ratio.value = 20
-
-    this.drumsBus.connect(this.masterBus)
-    this.musicBus.connect(this.masterBus)
-    this.fxBus.connect(this.masterBus)
-    this.masterBus.connect(this.limiter)
-    this.limiter.connect(this.ctx.destination)
-
-    this.buffers = {}
+export function getAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)()
   }
+  return audioContext
+}
 
-  async loadSample(name, url) {
-    const res = await fetch(url)
-    const arrayBuffer = await res.arrayBuffer()
-    const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer)
-    this.buffers[name] = audioBuffer
-  }
-
-  playSample(name, time, bus = "drums", velocity = 1) {
-    if (!this.buffers[name]) return
-
-    const source = this.ctx.createBufferSource()
-    const gain = this.ctx.createGain()
-    gain.gain.value = velocity
-
-    source.buffer = this.buffers[name]
-    source.connect(gain)
-
-    if (bus === "drums") gain.connect(this.drumsBus)
-    if (bus === "music") gain.connect(this.musicBus)
-    if (bus === "fx") gain.connect(this.fxBus)
-
-    source.start(time)
-  }
-
-  get currentTime() {
-    return this.ctx.currentTime
+export async function unlockAudio() {
+  const ctx = getAudioContext()
+  if (ctx.state === "suspended") {
+    await ctx.resume()
   }
 }
 
-export const engine = new AudioEngine()
+export function playKick() {
+  const ctx = getAudioContext()
+  const osc = ctx.createOscillator()
+  const gain = ctx.createGain()
+
+  osc.frequency.setValueAtTime(150, ctx.currentTime)
+  osc.frequency.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5)
+
+  gain.gain.setValueAtTime(1, ctx.currentTime)
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5)
+
+  osc.connect(gain)
+  gain.connect(ctx.destination)
+
+  osc.start()
+  osc.stop(ctx.currentTime + 0.5)
+}
+
+export function playSnare() {
+  const ctx = getAudioContext()
+
+  const noise = ctx.createBufferSource()
+  const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.2, ctx.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < buffer.length; i++) {
+    data[i] = Math.random() * 2 - 1
+  }
+
+  noise.buffer = buffer
+
+  const gain = ctx.createGain()
+  gain.gain.setValueAtTime(1, ctx.currentTime)
+  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2)
+
+  noise.connect(gain)
+  gain.connect(ctx.destination)
+
+  noise.start()
+  noise.stop(ctx.currentTime + 0.2)
+}
+
+export function playHat() {
+  const ctx = getAudioContext()
+
+  const noise = ctx.createBufferSource()
+  const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.05, ctx.sampleRate)
+  const data = buffer.getChannelData(0)
+  for (let i = 0; i < buffer.length; i++) {
+    data[i] = Math.random() * 2 - 1
+  }
+
+  noise.buffer = buffer
+
+  const gain = ctx.createGain()
+  gain.gain.setValueAtTime(0.5, ctx.currentTime)
+  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05)
+
+  noise.connect(gain)
+  gain.connect(ctx.destination)
+
+  noise.start()
+  noise.stop(ctx.currentTime + 0.05)
+}
