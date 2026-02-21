@@ -50,3 +50,6 @@ const navBtn={
   boxShadow:"0 0 20px #00F0FF",
   cursor:"pointer"
 }
+
+// In your router/switch:
+case 'Mix': return <Mix />;
