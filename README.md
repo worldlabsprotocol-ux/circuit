@@ -107,16 +107,16 @@ This is **infrastructure**, not a feature.
 **Phase 1 – Production & Royalty Modeling** (current – live)  
 → Core creation experience + visual split/royalty tools
 
-**Phase 2 – On-chain Split Enforcement** (Q1–Q2 2025)  
+**Phase 2 – On-chain Split Enforcement** (Q1–Q2 2026)  
 → Programmable splits stored & executed on Solana  
 → Automatic revenue routing via smart contracts
 
-**Phase 3 – Native Marketplace** (Q2–Q3 2025)  
+**Phase 3 – Native Marketplace** (Q2–Q3 2026)  
 → Upload beats → set price / license terms  
 → Artists browse, preview, buy, and license directly in-app  
 → Instant settlement to creator wallets
 
-**Phase 4 – Creator Governance & Composability** (2026+)  
+**Phase 4 – Creator Governance & Composability** (2027+)  
 → Community governance over platform fees & features  
 → Programmable allocation primitives (e.g. DAO-style splits, streaming royalties)  
 → Open APIs for third-party integrations  
