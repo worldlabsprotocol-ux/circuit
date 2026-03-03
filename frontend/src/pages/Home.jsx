@@ -196,7 +196,7 @@ export default function Home() {
             </a>
 
             <a
-              href="https://x.com/circuit8888"
+              href="https://x.com/circuit808"
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -220,7 +220,7 @@ export default function Home() {
                 e.currentTarget.style.borderColor = 'rgba(0,240,255,0.45)';
               }}
             >
-              Follow @circuit8888
+              Follow @circuit808
             </a>
           </div>
 
