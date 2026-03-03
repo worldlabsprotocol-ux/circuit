@@ -319,7 +319,7 @@ export default function Home() {
 
           <div style={{ display: 'flex', gap: '1.8rem' }}>
             <a href="/docs" style={{ color: '#00f0ff', textDecoration: 'none' }}>Docs</a>
-            <a href="https://x.com/circuit8888" style={{ color: '#00f0ff', textDecoration: 'none' }}>Twitter/X</a>
+            <a href="https://x.com/circuit808" style={{ color: '#00f0ff', textDecoration: 'none' }}>Twitter/X</a>
             <a href="#" style={{ color: '#00f0ff', textDecoration: 'none' }}>Discord</a>
             <a href="#" style={{ color: '#00f0ff', textDecoration: 'none' }}>GitHub</a>
           </div>

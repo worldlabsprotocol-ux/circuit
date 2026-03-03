@@ -76,7 +76,7 @@ export default function Royalties() {
         </p>
 
         <a
-          href="https://x.com/circuit8888"
+          href="https://x.com/circuit808"
           target="_blank"
           rel="noopener noreferrer"
           style={{
