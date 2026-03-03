@@ -1,138 +1,205 @@
-# CIRCUIT
-Production as a programmable primitive.
+Circuit
 
-Circuit is a creator-first production and royalty infrastructure built for Solana.
+Production is programmable infrastructure.
 
-It embeds ownership logic directly into the creation layer — so production and monetization are not separate systems. They are unified from the first beat.
+Circuit is a mobile-first production environment built on Solana.
+It embeds ownership, splits, and distribution logic directly into the act of creation.
 
----
+Music is no longer exported into monetization systems.
+Monetization is defined at the moment of production.
 
-## The Structural Problem
-
-Music production and monetization are architecturally broken:
-
-- Creation tools optimize only for workflow  
-- Distribution platforms optimize only for capture  
-- Ownership becomes an afterthought  
-- Revenue routing stays opaque and centralized  
-
-This misalignment is not a bug — it's the current architecture.
 
 ---
 
-## The Insight
+The Structural Misalignment
 
-The highest-leverage point in the creator stack is **the production interface itself**.
+Modern music infrastructure is fragmented:
 
-If ownership logic lives at the moment of creation:
+• Production tools optimize for workflow
+• Distribution platforms optimize for revenue capture
+• Ownership logic is added later
+• Royalty routing remains opaque
+• Creators operate inside systems they do not control
 
-- Splits become programmable  
-- Revenue routing becomes native  
-- Mobile devices become economic terminals  
-- Distribution becomes composable  
+This separation is architectural.
 
-Production is not just a tool.  
-It is the new **economic control point**.
+Creation and monetization live in different layers of the stack.
 
----
+Circuit collapses them into one.
 
-## What Circuit Is Becoming
-
-Circuit is evolving from a powerful beat-making tool into a **full creator ecosystem** on Solana:
-
-1. **Create** — intuitive, mobile-first production (beat grid, vocal recording, effects, session management)  
-2. **Own** — programmable splits & royalty logic embedded at creation  
-3. **Sell & Buy** — native marketplace where artists discover, purchase, and license beats directly inside the platform  
-4. **Grow** — community-driven ecosystem modeling, visual revenue flows, and future on-chain enforcement  
-
-Ownership is not bolted on later.  
-It is **baked in from the first kick**.
 
 ---
 
-## Why Solana + Mobile
+The Primitive
 
-Solana Mobile (Seeker) is not just hardware — it's a **wallet-native secure computing environment**.
+Circuit treats production as a programmable economic surface.
 
-Circuit turns that environment into:
+When a beat is created:
 
-- A production terminal  
-- A programmable revenue surface  
-- A peer-to-peer beat marketplace  
-- A mobile-first ownership dashboard  
+• Split logic can be defined
+• Ownership can be attached
+• Revenue routes can be modeled
+• Distribution paths can be pre-structured
 
-Low latency. Near-zero fees. True composability.
+Creation is not upstream from ownership.
+It is ownership.
 
----
-
-## Mechanism Design Principles
-
-1. **Creation-first revenue logic** — splits & royalties defined during production  
-2. **Visual split allocation** — drag-and-drop economic design inside the interface  
-3. **Ecosystem growth modeling** — transparent visualization of how value accrues to creators & community  
-4. **On-chain enforcement roadmap** — moving from off-chain modeling to immutable Solana programs  
-5. **Marketplace flywheel** — creators upload → artists buy/license → revenue splits auto-execute → more creators join  
-
-As adoption grows:  
-- Community allocation expands  
-- Platform risk decreases  
-- Revenue logic decentralizes  
-
-This is **infrastructure**, not a feature.
 
 ---
 
-## Current Capabilities (Phase 1 – Live)
+Why Solana
 
-### Create
-- 16-step beat grid with multi-track layering  
-- Real-time sound manipulation & effects rack  
-- Native microphone recording & vocal layering  
-- Tempo / BPM control  
-- Session save/load & playback  
+Solana provides:
 
-### Own & Model
-- Visual royalty split allocation diagram  
-- Ecosystem growth & revenue flow visualization  
-- Wallet connectivity (Phantom + Solana Mobile)  
+• Low latency execution
+• Near-zero transaction costs
+• Composable smart contracts
+• Mobile-native secure signing (Seed Vault)
 
-### Export
-- WAV export for distribution  
-- Session sharing links  
+Solana Mobile (Seeker) transforms the device into:
 
----
+• A production terminal
+• A wallet-native signing environment
+• A portable ownership interface
 
-## Roadmap – Toward the Full Ecosystem
+Circuit is designed for that environment.
 
-**Phase 1 – Production & Royalty Modeling** (current – live)  
-→ Core creation experience + visual split/royalty tools
-
-**Phase 2 – On-chain Split Enforcement** (Q1–Q2 2026)  
-→ Programmable splits stored & executed on Solana  
-→ Automatic revenue routing via smart contracts
-
-**Phase 3 – Native Marketplace** (Q2–Q3 2026)  
-→ Upload beats → set price / license terms  
-→ Artists browse, preview, buy, and license directly in-app  
-→ Instant settlement to creator wallets
-
-**Phase 4 – Creator Governance & Composability** (2027+)  
-→ Community governance over platform fees & features  
-→ Programmable allocation primitives (e.g. DAO-style splits, streaming royalties)  
-→ Open APIs for third-party integrations  
 
 ---
 
-## Status & Vision
+Current Capabilities
 
-Circuit began in 2023 as part of the World Labs exploration and has evolved into a Solana-native decentralized application.
+Production Layer
 
-This is my first serious dApp — and it's just the beginning.
+• 16-step sequencer
+• Multi-track layering
+• Real-time audio engine (Web Audio API)
+• Track-level volume / pan / mute / solo
+• Microphone recording with live waveform overlay
+• Touch-enabled grid interaction (drag to slide)
+• BPM control + metronome
+• Dark / light mode
 
-**Long-term vision:**  
-Circuit becomes the place where creators **make**, **own**, **sell**, and **buy** beats — all in one unified, programmable layer on Solana.  
+Ownership & Sharing
 
-A mobile-first production & marketplace ecosystem where ownership is not an add-on — it's the default.
+• Session sharing links
+• Fork logic with split inheritance
+• Creator profile display
+• Like / Follow system
+• Trending session feed
 
-pabloretroworld.skr  
-Building on Solana.
+Royalty Modeling
+
+• Interactive split allocation
+• Pie chart visualization
+• Projected earnings calculator
+• Revenue modeling interface
+
+Export
+
+• WAV export
+• MP3 placeholder export
+• Share session links
+
+
+---
+
+Architecture Direction
+
+Circuit is evolving toward programmable enforcement.
+
+Phase 1 — Production + Modeling (Live)
+
+Creation interface
+Split visualization
+Social discovery
+Mobile-native experience
+
+Phase 2 — On-Chain Split Enforcement
+
+Smart contract split storage
+Automatic revenue routing
+Immutable royalty execution
+
+Phase 3 — Native Marketplace
+
+Beat uploads
+License configuration
+On-chain purchase settlement
+Instant wallet distribution
+
+Phase 4 — Governance & Composability
+
+DAO participation
+Programmable allocation primitives
+Open APIs for integrations
+
+
+---
+
+Long-Term Positioning
+
+Circuit is not a beat app.
+
+It is production infrastructure.
+
+As creators adopt programmable splits at creation:
+
+• Distribution becomes composable
+• Royalty enforcement becomes deterministic
+• Creator leverage increases
+• Economic coordination moves upstream
+
+Production becomes the economic control layer.
+
+
+---
+
+Tech Stack
+
+Frontend
+• React
+• Web Audio API
+• Mobile-first layout
+
+Blockchain
+• Solana
+• Wallet integration
+• Future Metaplex NFT support
+• Future programmable royalty contracts
+
+
+---
+
+Status
+
+Originally conceptualized in 2023 under World Labs.
+Now built as a Solana-native decentralized application.
+
+This is the first full production-grade dApp iteration.
+
+The architecture is being hardened.
+
+
+---
+
+Vision
+
+Circuit becomes the default surface where:
+
+Creators make.
+Creators own.
+Creators distribute.
+Creators monetize.
+
+From a single interface.
+
+On mobile.
+
+On-chain.
+
+
+---
+
+Built on Solana
+pabloretroworld.skr
