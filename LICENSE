@@ -1,21 +1,61 @@
-MIT License
+CIRCUIT PROPRIETARY SOFTWARE LICENSE  
+Copyright (c) 2026 World Labs Protocol. All Rights Reserved.
 
-Copyright © 2026 Circuit, a WorldLabs Protocol project. All rights reserved.
+1. Ownership
 
-Permission is granted to use and interact with the Circuit platform for lawful personal and commercial creative purposes.
+CIRCUIT, including but not limited to its source code, audio engine logic, user interface designs, royalty modeling systems, smart contract architecture, documentation, branding, and related materials (collectively, the “Software”), is the exclusive intellectual property of World Labs Protocol.
 
-Users retain full ownership of the original music, recordings, compositions, and creative works they produce within Circuit.
+No ownership rights are transferred under this License.
 
-This license applies strictly to the Circuit software platform. It does not grant rights to:
+2. License Grant
 
-• The Circuit name
-• Circuit branding or visual identity
-• Audio engine architecture
-• Smart royalty distribution framework
-• Platform UI/UX design systems
-• Proprietary backend logic
-• Smart contract infrastructure
+Subject to compliance with these terms, World Labs Protocol grants a limited, non-exclusive, non-transferable, revocable license to:
 
-No party may copy, reproduce, modify, redistribute, sublicense, reverse engineer, fork the platform infrastructure, or commercially replicate Circuit’s proprietary systems without explicit written authorization.
+• Access and use the deployed CIRCUIT application for personal, non-commercial, or internal evaluation purposes.
+• Interact with on-chain components as publicly deployed.
 
-This license does not apply to user-generated content.
+No other rights are granted.
+
+3. Restrictions
+
+You may not:
+
+• Copy, reproduce, modify, or create derivative works of the Software.
+• Reverse engineer, decompile, or disassemble the Software.
+• Distribute, sublicense, lease, rent, or sell the Software.
+• Deploy modified versions of the Software publicly.
+• Use the Software to build a competing product or service.
+• Remove or alter any proprietary notices.
+
+All rights not expressly granted are reserved by World Labs Protocol.
+
+4. Smart Contracts and On-Chain Components
+
+Unless explicitly released under a separate open-source license, all smart contract code, royalty logic, minting mechanisms, and economic models associated with CIRCUIT remain proprietary.
+
+World Labs Protocol may, at its discretion, open-source specific components in the future under separate licensing terms.
+
+5. No Warranty
+
+The Software is provided “AS IS” without warranty of any kind, express or implied, including but not limited to merchantability, fitness for a particular purpose, or non-infringement.
+
+6. Limitation of Liability
+
+In no event shall World Labs Protocol be liable for any indirect, incidental, consequential, special, or punitive damages arising out of or related to the use of the Software.
+
+7. Termination
+
+This License remains effective until terminated. It will automatically terminate if you fail to comply with its terms.
+
+Upon termination, you must immediately cease all use of the Software.
+
+8. Governing Law
+
+This License shall be governed by and construed in accordance with the laws of the jurisdiction determined by World Labs Protocol.
+
+9. Reservation of Rights
+
+World Labs Protocol reserves all rights not expressly granted under this License.
+
+
+
