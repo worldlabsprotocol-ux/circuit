@@ -1,0 +1,153 @@
+import { useState } from "react"
+
+export default function Circuit() {
+  const [bpm, setBpm] = useState(120)
+  const [tracks, setTracks] = useState(
+    Array.from({ length: 8 }, () =>
+      Array.from({ length: 16 }, () => false)
+    )
+  )
+
+  const [effects, setEffects] = useState({
+    reverb: 30,
+    delay: 20,
+    lowEQ: 50,
+    midEQ: 50,
+    highEQ: 50
+  })
+
+  function toggleCell(trackIndex, stepIndex) {
+    const updated = tracks.map((track, tIdx) =>
+      tIdx === trackIndex
+        ? track.map((step, sIdx) =>
+            sIdx === stepIndex ? !step : step
+          )
+        : track
+    )
+    setTracks(updated)
+  }
+
+  function updateEffect(key, value) {
+    setEffects({ ...effects, [key]: value })
+  }
+
+  return (
+    <div style={{ display: "flex", padding: 40, gap: 40 }}>
+
+      {/* LEFT SAMPLE PANEL */}
+      <div style={{ width: 180 }}>
+        <h3>Samples</h3>
+        <div style={{ marginTop: 15 }}>
+          <div>Drums</div>
+          <div>Kick 808</div>
+          <div>Snare Tight</div>
+          <div>HiHat Trap</div>
+        </div>
+
+        <div style={{ marginTop: 20 }}>
+          <div>Bass</div>
+          <div>Sub Bass</div>
+        </div>
+
+        <div style={{ marginTop: 20 }}>
+          <div>Melodies</div>
+          <div>Pluck Melody</div>
+        </div>
+
+        <div style={{ marginTop: 20 }}>
+          <div>Vocals</div>
+        </div>
+
+        <div style={{ marginTop: 20 }}>
+          <div>FX</div>
+        </div>
+      </div>
+
+      {/* CENTER BEAT MAKER */}
+      <div style={{ flex: 1 }}>
+
+        <h2>Create</h2>
+
+        {/* Jupiter-style control bar */}
+        <div style={{ marginBottom: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <button style={pillStyle}>Play</button>
+          <button style={pillStyle}>Export WAV</button>
+          <button style={pillStyle}>Export MP3</button>
+          <button style={pillStyle}>Share</button>
+          <button style={pillStyle}>Remix This</button>
+        </div>
+
+        {/* BPM */}
+        <div style={{ marginBottom: 25 }}>
+          <strong>BPM: {bpm}</strong>
+          <input
+            type="range"
+            min="60"
+            max="180"
+            value={bpm}
+            onChange={(e) => setBpm(parseInt(e.target.value))}
+            style={{ marginLeft: 15 }}
+          />
+        </div>
+
+        {/* GRID */}
+        {tracks.map((track, trackIndex) => (
+          <div key={trackIndex} style={{ marginBottom: 12 }}>
+            <strong>Track {trackIndex + 1}</strong>
+            <div style={{ display: "flex", marginTop: 5 }}>
+              {track.map((step, stepIndex) => (
+                <div
+                  key={stepIndex}
+                  onClick={() => toggleCell(trackIndex, stepIndex)}
+                  style={{
+                    width: 22,
+                    height: 22,
+                    marginRight: 4,
+                    background: step ? "#00ffff" : "#222",
+                    borderRadius: 4,
+                    cursor: "pointer"
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+
+      </div>
+
+      {/* RIGHT EFFECTS PANEL */}
+      <div style={{
+        width: 220,
+        background: "rgba(0,255,255,0.05)",
+        padding: 20,
+        borderRadius: 12,
+        height: "fit-content"
+      }}>
+        <h3>Effects</h3>
+
+        {Object.entries(effects).map(([key, value]) => (
+          <div key={key} style={{ marginTop: 15 }}>
+            <div style={{ fontSize: 12 }}>{key.toUpperCase()}</div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={value}
+              onChange={(e) => updateEffect(key, parseInt(e.target.value))}
+              style={{ width: "100%" }}
+            />
+          </div>
+        ))}
+      </div>
+
+    </div>
+  )
+}
+
+const pillStyle = {
+  background: "rgba(0,255,255,0.15)",
+  border: "1px solid rgba(0,255,255,0.4)",
+  padding: "8px 16px",
+  borderRadius: 999,
+  cursor: "pointer"
+}

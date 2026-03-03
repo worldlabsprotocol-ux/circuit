@@ -1,0 +1,56 @@
+import { useState } from "react"
+
+export default function Royalties() {
+  const [creatorShare, setCreatorShare] = useState(80)
+  const platformShare = 100 - creatorShare
+
+  return (
+    <div style={{ padding: 40 }}>
+
+      <h2 style={{ marginBottom: 30 }}>Royalties</h2>
+
+      <div
+        style={{
+          marginTop: 40,
+          padding: 20,
+          border: "1px solid rgba(0,255,255,0.2)",
+          borderRadius: 12
+        }}
+      >
+
+        <h3 style={{ marginBottom: 15 }}>
+          Interactive Royalty Split
+        </h3>
+
+        <div style={{ marginBottom: 15 }}>
+          <strong>Creator:</strong> {creatorShare}%
+        </div>
+
+        <div style={{ marginBottom: 15 }}>
+          <strong>Platform:</strong> {platformShare}%
+        </div>
+
+        <input
+          type="range"
+          min="10"
+          max="95"
+          value={creatorShare}
+          onChange={(e) => setCreatorShare(parseInt(e.target.value))}
+          style={{ width: "100%" }}
+        />
+
+        <div style={{ marginTop: 20 }}>
+          Example payout on 1 SOL revenue:
+          <div style={{ marginTop: 8 }}>
+            Creator receives: {(creatorShare / 100).toFixed(2)} SOL
+          </div>
+          <div>
+            Platform receives: {(platformShare / 100).toFixed(2)} SOL
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  )
+}

@@ -1,0 +1,171 @@
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom"
+import Landing from "./pages/Landing"
+import Circuit from "./pages/Circuit"
+import Microphone from "./pages/Microphone"
+
+function BottomNav(){
+  const navigate = useNavigate()
+  return(
+    <div style={navWrap}>
+      <button style={navBtn} onClick={()=>navigate("/")}>Home</button>
+      <button style={navBtn} onClick={()=>navigate("/create")}>Create</button>
+      <button style={navBtn} onClick={()=>navigate("/mic")}>Mic</button>
+      <button style={navBtn} onClick={()=>navigate("/royalties")}>Royalties</button>
+    </div>
+  )
+}
+
+export default function App(){
+  return(
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Landing/>}/>
+        <Route path="/create" element={<Circuit/>}/>
+        <Route path="/mic" element={<Microphone/>}/>
+        <Route path="/royalties" element={<Royalties/>}/>
+      </Routes>
+      <BottomNav/>
+    </BrowserRouter>
+  )
+}
+
+const navWrap={
+  position:"fixed",
+  bottom:30,
+  left:"50%",
+  transform:"translateX(-50%)",
+  display:"flex",
+  gap:30,
+  zIndex:10
+}
+
+const navBtn={
+  padding:"12px 30px",
+  borderRadius:40,
+  background:"#00F0FF",
+  border:"none",
+  color:"#000",
+  fontWeight:700,
+  boxShadow:"0 0 20px #00F0FF",
+  cursor:"pointer"
+}
+
+
+// --- Added proper tab navigation (replace or merge with your existing return) ---
+
+import { useState } from 'react';
+import Home from './pages/Home';       // adjust if your file names/paths differ
+import Create from './pages/Create';
+import Mic from './pages/Mic';
+
+function App() {
+  const [activeTab, setActiveTab] = useState('Create');
+
+  return (
+    <div className="min-h-screen bg-black text-white relative">
+      {/* Your existing header / starfield / wave / wallet button here */}
+
+      <main className="pb-20"> {/* padding for bottom nav */}
+        {activeTab === 'Home' && <Home />}
+        {activeTab === 'Create' && <Create />}
+        {activeTab === 'Mic' && <Mic />}
+        {activeTab === 'Royalties' && <Royalties />}
+        {activeTab === 'Mix' && <Mix />}
+        {/* Add more tabs here later, e.g. {activeTab === 'Playlists' && <Playlists />} */}
+      </main>
+
+      {/* Glowing bottom navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-md border-t border-cyan-500/30 z-50">
+        <div className="flex justify-around items-center py-3 max-w-md mx-auto">
+          <button 
+            onClick={() => setActiveTab('Home')}
+            className={`text-sm font-medium transition-all ${activeTab === 'Home' ? 'text-cyan-400 scale-110' : 'text-gray-400 hover:text-cyan-300'}`}
+          >
+            Home
+          </button>
+          <button 
+            onClick={() => setActiveTab('Create')}
+            className={`text-sm font-medium transition-all ${activeTab === 'Create' ? 'text-cyan-400 scale-110' : 'text-gray-400 hover:text-cyan-300'}`}
+          >
+            Create
+          </button>
+          <button 
+            onClick={() => setActiveTab('Mic')}
+            className={`text-sm font-medium transition-all ${activeTab === 'Mic' ? 'text-cyan-400 scale-110' : 'text-gray-400 hover:text-cyan-300'}`}
+          >
+            Mic
+          </button>
+          <button 
+            onClick={() => setActiveTab('Royalties')}
+            className={`text-sm font-medium transition-all ${activeTab === 'Royalties' ? 'text-cyan-400 scale-110' : 'text-gray-400 hover:text-cyan-300'}`}
+          >
+            Royalties
+          </button>
+          <button 
+            onClick={() => setActiveTab('Mix')}
+            className={`text-sm font-medium transition-all ${activeTab === 'Mix' ? 'text-cyan-400 scale-110' : 'text-gray-400 hover:text-cyan-300'}`}
+          >
+            Mix
+          </button>
+        </div>
+      </nav>
+    </div>
+  );
+}
+
+export default App;
+
+// --- Clean Tab Navigation Overwrite (merge manually if needed) ---
+
+import { useState } from 'react';
+import Home from './pages/Home';
+import Create from './pages/Create';
+import Mic from './pages/Mic';
+import Royalties from './pages/Royalties';
+import Mix from './pages/Mix';
+
+// If you have other pages/components (e.g. ChatBot), import them here too
+
+function App() {
+  const [activeTab, setActiveTab] = useState('Create');
+
+  return (
+    <div className="min-h-screen bg-black text-white relative">
+      {/* Keep your existing header: starfield, neon wave, Select Wallet button, etc. */}
+      {/* Example placeholder - replace with your actual header JSX */}
+      <header className="p-4">
+        <h1 className="text-4xl font-bold text-cyan-400 text-center">CIRCUIT</h1>
+        {/* Your wallet button + curve wave here */}
+      </header>
+
+      <main className="pb-24 px-4"> {/* Extra bottom padding for nav */}
+        {activeTab === 'Home' && <Home />}
+        {activeTab === 'Create' && <Create />}
+        {activeTab === 'Mic' && <Mic />}
+        {activeTab === 'Royalties' && <Royalties />}
+        {activeTab === 'Mix' && <Mix />}
+      </main>
+
+      {/* Glowing cyan bottom nav with scale hover effect */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-gray-900/90 backdrop-blur-lg border-t border-cyan-500/40 z-50">
+        <div className="flex justify-around items-center py-4 max-w-screen-sm mx-auto">
+          {['Home', 'Create', 'Mic', 'Royalties', 'Mix'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium ${
+                activeTab === tab
+                  ? 'bg-cyan-500/30 text-cyan-300 scale-110 shadow-lg shadow-cyan-500/50'
+                  : 'text-gray-400 hover:text-cyan-300 hover:bg-cyan-900/30'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </nav>
+    </div>
+  );
+}
+
+export default App;

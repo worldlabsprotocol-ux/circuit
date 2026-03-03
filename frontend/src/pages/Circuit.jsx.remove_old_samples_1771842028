@@ -1,0 +1,131 @@
+import { useState } from "react"
+import LoopBrowser from "../components/LoopBrowser"
+import EffectsRack from "../components/EffectsRack"
+import CommentSection from "../components/CommentSection"
+
+export default function Circuit() {
+
+  const [bpm, setBpm] = useState(120)
+
+  const [tracks, setTracks] = useState(
+    Array.from({ length: 8 }, () =>
+      Array.from({ length: 16 }, () => false)
+    )
+  )
+
+  const [royaltySplit, setRoyaltySplit] = useState({
+    originalCreator: null,
+    originalShare: 0
+  })
+
+  function toggleStep(trackIndex, stepIndex) {
+    const updated = [...tracks]
+    updated[trackIndex][stepIndex] = !updated[trackIndex][stepIndex]
+    setTracks(updated)
+  }
+
+  function handleRemix() {
+    const demoIncoming = Array.from({ length: 8 }, () =>
+      Array.from({ length: 16 }, () => Math.random() > 0.7)
+    )
+
+    setTracks(demoIncoming)
+
+    setRoyaltySplit({
+      originalCreator: "OriginalCreatorWallet123",
+      originalShare: 20
+    })
+  }
+
+  return (
+    <div style={{ display: 'flex', gap: 40, alignItems: 'flex-start' }}>
+
+      {/* SAMPLES_PANEL_MARKER */}
+      <div style={{
+        width: 200,
+        display: "flex",
+        flexDirection: "column",
+        gap: 12
+      }}>
+        <h3 style={{ color: "#00ffff" }}>Samples</h3>
+        {["Kick 808","Snare Tight","HiHat Trap","Sub Bass","Pluck Melody","Vocal FX"].map(sample => (
+          <button
+            key={sample}
+            style={{
+              background: "rgba(0,255,255,0.08)",
+              border: "1px solid rgba(0,255,255,0.4)",
+              padding: "8px 14px",
+              borderRadius: 14,
+              cursor: "pointer",
+              color: "#00ffff",
+              fontSize: 13
+            }}
+          >
+            {sample}
+          </button>
+        ))}
+      </div>
+    
+    <div style={{ display: "flex" }}>
+
+      <div style={{ width: 220 }}>
+        <LoopBrowser />
+      </div>
+
+      <div style={{ flex: 1, paddingLeft: 20 }}>
+
+        <h2>Create</h2>
+
+        <button onClick={handleRemix} style={{ marginBottom: 10 }}>
+          Remix This
+        </button>
+
+        <div style={{ marginBottom: 15 }}>
+          <span style={{ marginRight: 10 }}>BPM: {bpm}</span>
+          <input
+            type="range"
+            min="60"
+            max="180"
+            value={bpm}
+            onChange={(e) => setBpm(parseInt(e.target.value))}
+          />
+        </div>
+
+        {tracks.map((track, trackIndex) => (
+          <div key={trackIndex} style={{ marginBottom: 10 }}>
+            <div style={{ marginBottom: 4 }}>
+              Track {trackIndex + 1}
+            </div>
+
+            <div style={{ display: "flex", gap: 4 }}>
+              {track.map((step, stepIndex) => (
+                <div
+                  key={stepIndex}
+                  onClick={() => toggleStep(trackIndex, stepIndex)}
+                  style={{
+                    width: 22,
+                    height: 22,
+                    background: step ? "#00ffff" : "#333",
+                    borderRadius: 4,
+                    cursor: "pointer"
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <div style={{ marginTop: 25 }}>
+          <EffectsRack />
+        </div>
+
+        <div style={{ marginTop: 25 }}>
+          <CommentSection sessionId="circuit-session" />
+        </div>
+
+      </div>
+
+        </div>
+  </div>
+  )
+}

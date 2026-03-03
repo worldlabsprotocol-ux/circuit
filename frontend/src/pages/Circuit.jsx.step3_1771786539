@@ -1,0 +1,101 @@
+import EffectsRack from "../components/EffectsRack";
+import EffectsRack from "../components/EffectsRack";
+import { useState, useEffect } from "react"
+import LoopBrowser from "../components/LoopBrowser"
+
+const TRACK_COUNT = 8
+const STEPS = 16
+
+export default function Circuit() {
+  const [tempo, setTempo] = useState(120)
+  const [playing, setPlaying] = useState(false)
+  const [step, setStep] = useState(0)
+
+  const [tracks, setTracks] = useState(
+    Array.from({ length: TRACK_COUNT }, () =>
+      Array(STEPS).fill(false)
+    )
+  )
+
+  useEffect(() => {
+    if (!playing) return
+    const interval = setInterval(() => {
+      setStep(prev => (prev + 1) % STEPS)
+    }, (60000 / tempo) / 4)
+    return () => clearInterval(interval)
+  }, [playing, tempo])
+
+  const toggleCell = (trackIndex, stepIndex) => {
+    const updated = [...tracks]
+    updated[trackIndex][stepIndex] =
+      !updated[trackIndex][stepIndex]
+    setTracks(updated)
+  }
+
+  return (
+    <div style={{ display: "flex", height: "100vh", color: "#0ff" }}>
+      
+      <LoopBrowser />
+
+      <div style={{ flex: 1, padding: 40, overflowY: "auto" }}>
+        <h2>Create</h2>
+
+        <button onClick={() => setPlaying(!playing)}>
+          {playing ? "Stop" : "Play"}
+        </button>
+
+        <input
+          type="range"
+          min="80"
+          max="160"
+          value={tempo}
+          onChange={(e) => setTempo(parseInt(e.target.value))}
+        />
+
+        <div style={{ marginTop: 20 }}>
+          {tracks.map((track, tIndex) => (
+            <div
+              key={tIndex}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: 10
+              }}
+            >
+              <span style={{ width: 70 }}>
+                Track {tIndex + 1}
+              </span>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: `repeat(${STEPS}, 1fr)`,
+                  gap: 4,
+                  flex: 1
+                }}
+              >
+                {track.map((active, sIndex) => (
+                  <div
+                    key={sIndex}
+                    onClick={() => toggleCell(tIndex, sIndex)}
+                    style={{
+                      height: 30,
+                      borderRadius: 6,
+                      cursor: "pointer",
+                      background:
+                        step === sIndex
+                          ? "#ffffff"
+                          : active
+                          ? "#00ffff"
+                          : "#222"
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}

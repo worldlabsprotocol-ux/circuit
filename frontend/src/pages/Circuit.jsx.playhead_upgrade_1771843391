@@ -1,0 +1,124 @@
+import React, { useState, useEffect } from "react"
+import LoopBrowser from "../components/LoopBrowser"
+import EffectsRack from "../components/EffectsRack"
+import CommentSection from "../components/CommentSection"
+import * as Tone from "tone"
+
+export default function Circuit() {
+
+  const [bpm, setBpm] = useState(120)
+
+  const [tracks, setTracks] = useState(
+    Array.from({ length: 8 }, () =>
+      Array.from({ length: 16 }, () => false)
+    )
+  )
+
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentStep, setCurrentStep] = useState(0)
+
+  const synth = new Tone.Synth().toDestination()
+
+  useEffect(() => {
+    Tone.Transport.bpm.value = bpm
+  }, [bpm])
+
+  useEffect(() => {
+    if (!isPlaying) return
+
+    const id = Tone.Transport.scheduleRepeat((time) => {
+      tracks.forEach((row, trackIndex) => {
+        if (row[currentStep]) {
+          synth.triggerAttackRelease(
+            ["C2","D2","E2","F2","G2","A2","B2","C3"][trackIndex % 8],
+            "8n",
+            time
+          )
+        }
+      })
+
+      setCurrentStep((prev) => (prev + 1) % 16)
+    }, "16n")
+
+    Tone.Transport.start()
+
+    return () => {
+      Tone.Transport.stop()
+      Tone.Transport.cancel()
+    }
+  }, [isPlaying, tracks, currentStep])
+
+  function toggleStep(trackIndex, stepIndex) {
+    const updated = tracks.map((row, r) =>
+      row.map((cell, c) =>
+        r === trackIndex && c === stepIndex ? !cell : cell
+      )
+    )
+    setTracks(updated)
+  }
+
+  return (
+    <div style={{ display: "flex", padding: 20 }}>
+
+      <div style={{ width: 220 }}>
+        <LoopBrowser />
+      </div>
+
+      <div style={{ flex: 1, paddingLeft: 40 }}>
+
+        <h2>Create</h2>
+
+        <div style={{ marginBottom: 20 }}>
+          <button onClick={() => setIsPlaying(!isPlaying)}>
+            {isPlaying ? "Stop" : "Play"}
+          </button>
+
+          <button style={{ marginLeft: 8 }}>Export WAV</button>
+          <button style={{ marginLeft: 8 }}>Export MP3</button>
+          <button style={{ marginLeft: 8 }}>Share</button>
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          BPM: {bpm}
+          <input
+            type="range"
+            min="60"
+            max="180"
+            value={bpm}
+            onChange={(e) => setBpm(parseInt(e.target.value))}
+            style={{ width: 200, marginLeft: 10 }}
+          />
+        </div>
+
+        {tracks.map((row, rowIndex) => (
+          <div key={rowIndex} style={{ display: "flex", marginBottom: 6 }}>
+            {row.map((cell, colIndex) => (
+              <div
+                key={colIndex}
+                onClick={() => toggleStep(rowIndex, colIndex)}
+                style={{
+                  width: 28,
+                  height: 28,
+                  marginRight: 4,
+                  borderRadius: 6,
+                  border: "1px solid #00ffff55",
+                  background: cell ? "#00ffff" : "#111",
+                  boxShadow: cell ? "0 0 8px #00ffff" : "none",
+                  cursor: "pointer"
+                }}
+              />
+            ))}
+          </div>
+        ))}
+
+        <CommentSection sessionId="circuit-session" />
+
+      </div>
+
+      <div style={{ width: 260, paddingLeft: 30 }}>
+        <EffectsRack />
+      </div>
+
+    </div>
+  )
+}

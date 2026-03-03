@@ -1,10 +1,8 @@
-
-import EffectsPanel from '../components/EffectsPanel';
-
-import LoopLibrary from '../components/LoopLibrary';
-
-// Add to your component function:
-const handleLoadLoop = (url, layer) => {
-  console.log('Loading loop to layer', layer, url);
-  // Integrate with sequencer: e.g., load sample into Tone.Player
-};
+export default function Create() {
+  return (
+    <div className="text-cyan-400 p-8">
+      <h1 className="text-2xl font-bold">Create</h1>
+      <p>Production tools loading.</p>
+    </div>
+  );
+}

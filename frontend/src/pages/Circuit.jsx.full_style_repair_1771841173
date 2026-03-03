@@ -1,0 +1,133 @@
+import { useState, useRef } from "react"
+
+export default function Circuit() {
+  const [bpm, setBpm] = useState(120)
+  const [tracks, setTracks] = useState(
+    Array.from({ length: 8 }, () =>
+      Array.from({ length: 16 }, () => false)
+    )
+  )
+
+  const audioCtxRef = useRef(null)
+  const isPlayingRef = useRef(false)
+
+  function toggleCell(trackIndex, stepIndex) {
+    const updated = tracks.map((track, tIdx) =>
+      tIdx === trackIndex
+        ? track.map((step, sIdx) =>
+            sIdx === stepIndex ? !step : step
+          )
+        : track
+    )
+    setTracks(updated)
+  }
+
+  function playPattern() {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)()
+    }
+
+    const ctx = audioCtxRef.current
+    const stepTime = (60 / bpm) / 4
+
+    tracks.forEach((track, trackIndex) => {
+      track.forEach((step, stepIndex) => {
+        if (step) {
+          const osc = ctx.createOscillator()
+          const gain = ctx.createGain()
+
+          osc.type = "square"
+          osc.frequency.value = 120 + trackIndex * 40
+
+          gain.gain.value = 0.1
+
+          osc.connect(gain)
+          gain.connect(ctx.destination)
+
+          const startTime = ctx.currentTime + stepIndex * stepTime
+          osc.start(startTime)
+          osc.stop(startTime + 0.1)
+        }
+      })
+    })
+  }
+
+  return (
+    <div style={{ display: "flex", padding: 40, gap: 40 }}>
+
+      {/* CENTER */}
+      <div style={{ flex: 1 }}>
+
+        <h2>Create</h2>
+
+        {/* CONTROL BAR */}
+        <div style={{ marginBottom: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <button style={controlBtn} onClick={playPattern}>Play</button>
+          <button style={controlBtn}>Export WAV</button>
+          <button style={controlBtn}>Export MP3</button>
+          <button style={controlBtn}>Share</button>
+          <button style={controlBtn}>Remix This</button>
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <strong style={{ color: "#00ffff" }}>BPM: {bpm}</strong>
+        {/* SAMPLE BUTTONS CENTERED */}
+        <div style={{
+          marginTop: 40,
+          display: "flex",
+          justifyContent: "center",
+          gap: 20,
+          flexWrap: "wrap"
+        }}>
+          {["Kick 808","Snare Tight","HiHat Trap","Sub Bass","Pluck Melody","Vocal FX"].map(sample => (
+            <button key={sample} style={sampleBtn}>
+              {sample}
+            </button>
+          ))}
+        </div>
+
+      </div>
+
+      {/* EFFECTS RIGHT */}
+      <div style={{
+        width: 240,
+        background: "rgba(0,255,255,0.05)",
+        padding: 20,
+        borderRadius: 12,
+        height: "fit-content"
+      }}>
+        <h3>Effects</h3>
+
+        {["Reverb","Delay","Low EQ","Mid EQ","High EQ"].map(effect => (
+          <div key={effect} style={{ marginTop: 20 }}>
+            <div style={{ fontSize: 12 }}>{effect}</div>
+            <input type="range" min="0" max="100" style={{ width: "100%" }} />
+          </div>
+        ))}
+      </div>
+
+    </div>
+  )
+}
+
+const controlBtn = {
+  background: "rgba(0,255,255,0.15)",
+  border: "1px solid rgba(0,255,255,0.4)",
+  padding: "8px 18px",
+    borderRadius: 999,
+}
+  cursor: "pointer",
+  color: "#00ffff",
+  fontWeight: 500
+}
+}
+
+const sampleBtn = {
+  background: "rgba(0,255,255,0.08)",
+  border: "1px solid rgba(0,255,255,0.4)",
+  padding: "10px 16px",
+  borderRadius: 12,
+  cursor: "pointer",
+  color: "#00ffff",
+  fontSize: 14
+}

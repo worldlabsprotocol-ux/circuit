@@ -1,0 +1,106 @@
+import { useState } from "react"
+import LoopBrowser from "../components/LoopBrowser"
+import { loadSample, playSample } from "../audio/SimpleSampler"
+
+function createInitialTracks() {
+  return Array.from({ length: 8 }, () => ({
+    pattern: Array(16).fill(false),
+    buffer: null
+  }))
+}
+
+export default function Circuit() {
+
+  const [tracks, setTracks] = useState(createInitialTracks())
+  const [history, setHistory] = useState([])
+  const [future, setFuture] = useState([])
+
+  // Save current state to history before any mutation
+  const pushHistory = (newState) => {
+    setHistory(prev => [...prev, tracks])
+    setFuture([])
+    setTracks(newState)
+  }
+
+  const undo = () => {
+    if (history.length === 0) return
+    const previous = history[history.length - 1]
+    setFuture(prev => [tracks, ...prev])
+    setTracks(previous)
+    setHistory(prev => prev.slice(0, -1))
+  }
+
+  const redo = () => {
+    if (future.length === 0) return
+    const next = future[0]
+    setHistory(prev => [...prev, tracks])
+    setTracks(next)
+    setFuture(prev => prev.slice(1))
+  }
+
+  const toggleStep = (trackIndex, stepIndex) => {
+    const updated = tracks.map((track, tIndex) => {
+      if (tIndex !== trackIndex) return track
+      return {
+        ...track,
+        pattern: track.pattern.map((step, sIndex) =>
+          sIndex === stepIndex ? !step : step
+        )
+      }
+    })
+    pushHistory(updated)
+  }
+
+  const assignSampleToTrack = async (sample) => {
+    const buffer = await loadSample(sample.file)
+    const updated = tracks.map((track, index) =>
+      index === 0 ? { ...track, buffer } : track
+    )
+    pushHistory(updated)
+  }
+
+  const play = () => {
+    tracks.forEach(track => {
+      if (track.buffer) playSample(track.buffer)
+    })
+  }
+
+  return (
+    <div style={{ display: "flex" }}>
+      <LoopBrowser onAssign={assignSampleToTrack} />
+
+      <div style={{ flex: 1, padding: 20 }}>
+        <h2 style={{ color: "#0ff" }}>Create</h2>
+
+        <div style={{ marginBottom: 10 }}>
+          <button onClick={play}>Play</button>
+          <button onClick={undo} style={{ marginLeft: 10 }}>Undo</button>
+          <button onClick={redo} style={{ marginLeft: 10 }}>Redo</button>
+        </div>
+
+        {tracks.map((track, tIndex) => (
+          <div key={tIndex} style={{ margin: "10px 0" }}>
+            <span style={{ color: "#0ff", marginRight: 10 }}>
+              Track {tIndex + 1}
+            </span>
+            {track.pattern.map((step, sIndex) => (
+              <span
+                key={sIndex}
+                onClick={() => toggleStep(tIndex, sIndex)}
+                style={{
+                  display: "inline-block",
+                  width: 25,
+                  height: 25,
+                  margin: 4,
+                  background: step ? "#0ff" : "#222",
+                  borderRadius: 6,
+                  cursor: "pointer"
+                }}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

@@ -1,26 +1,56 @@
 import React, { useState } from 'react';
-import { reverb, applyEffect } from '../audio/ToneIntegration'; // Adjust if needed
-import { kick, snare, hat } from '../audio/ToneIntegration';
+import * as Tone from 'tone';
+import { kick, snare, hat, reverb } from '../audio/ToneIntegration';
 
 const EffectsPanel = () => {
-  const [reverbWet, setReverbWet] = useState(0.5);
+  const [reverbWet, setReverbWet] = useState(reverb.wet.value || 0.3);
+  const [delayWet, setDelayWet] = useState(0);
 
-  const handleReverbChange = (e) => {
-    const value = parseFloat(e.target.value);
-    setReverbWet(value);
-    reverb.wet.value = value;
-    // Apply to all instruments (or make selectable)
-    applyEffect(kick, reverb);
-    applyEffect(snare, reverb);
-    applyEffect(hat, reverb);
+  const handleReverb = (e) => {
+    const val = parseFloat(e.target.value);
+    setReverbWet(val);
+    reverb.wet.value = val;
+    // Chain to drums (expand later for layers)
+    kick.connect(reverb);
+    snare.connect(reverb);
+    hat.connect(reverb);
+  };
+
+  const handleDelay = (e) => {
+    const val = parseFloat(e.target.value);
+    setDelayWet(val);
+    const delay = new Tone.FeedbackDelay('8n', 0.5).toDestination();
+    delay.wet.value = val;
+    kick.connect(delay);
+    snare.connect(delay);
+    hat.connect(delay);
   };
 
   return (
-    <div className="mt-4 p-4 bg-gray-800 rounded-lg">
-      <h3 className="text-cyan-400">Effects</h3>
-      <label className="block">Reverb: {reverbWet}</label>
-      <input type="range" min="0" max="1" step="0.01" value={reverbWet} onChange={handleReverbChange} className="w-full" />
-      {/* Add more effects like delay here */}
+    <div className="mt-6 p-4 bg-gray-900/70 rounded-xl border border-cyan-500/30">
+      <h3 className="text-lg font-bold text-cyan-400 mb-3">Effects Chain</h3>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm text-gray-300">Reverb Wet ({(reverbWet * 100).toFixed(0)}%)</label>
+          <input 
+            type="range" 
+            min="0" max="1" step="0.01" 
+            value={reverbWet} 
+            onChange={handleReverb} 
+            className="w-full accent-cyan-500" 
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-gray-300">Delay Wet ({(delayWet * 100).toFixed(0)}%)</label>
+          <input 
+            type="range" 
+            min="0" max="1" step="0.01" 
+            value={delayWet} 
+            onChange={handleDelay} 
+            className="w-full accent-cyan-500" 
+          />
+        </div>
+      </div>
     </div>
   );
 };

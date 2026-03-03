@@ -1,0 +1,174 @@
+import { useState } from "react"
+import LoopBrowser from "../components/LoopBrowser"
+import EffectsRack from "../components/EffectsRack"
+import CommentSection from "../components/CommentSection"
+
+export default function Circuit() {
+
+  const MAX_TRACKS = 12
+
+  const [bpm, setBpm] = useState(120)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [metronome, setMetronome] = useState(false)
+
+  const [tracks, setTracks] = useState(
+    Array.from({ length: 8 }, () =>
+      Array.from({ length: 16 }, () => false)
+    )
+  )
+
+  const [royaltySplit, setRoyaltySplit] = useState({
+    originalCreator: null,
+    originalShare: 0
+  })
+
+  function toggleStep(trackIndex, stepIndex) {
+    const updated = [...tracks]
+    updated[trackIndex][stepIndex] = !updated[trackIndex][stepIndex]
+    setTracks(updated)
+  }
+
+  function addTrack() {
+    if (tracks.length >= MAX_TRACKS) return
+    setTracks([
+      ...tracks,
+      Array.from({ length: 16 }, () => false)
+    ])
+  }
+
+  function removeTrack(index) {
+    const updated = tracks.filter((_, i) => i !== index)
+    setTracks(updated)
+  }
+
+  function handleRemix() {
+    const demoIncoming = Array.from({ length: tracks.length }, () =>
+      Array.from({ length: 16 }, () => Math.random() > 0.7)
+    )
+
+    setTracks(demoIncoming)
+
+    setRoyaltySplit({
+      originalCreator: "OriginalCreatorWallet123",
+      originalShare: 20
+    })
+  }
+
+  function exportWav() {
+    alert("Export WAV coming")
+  }
+
+  function exportMp3() {
+    alert("Export MP3 coming")
+  }
+
+  function shareTrack() {
+    alert("Share link coming")
+  }
+
+  return (
+    <div style={{ display: "flex" }}>
+
+      <div style={{ width: 220 }}>
+        <LoopBrowser />
+      </div>
+
+      <div style={{ flex: 1, paddingLeft: 20 }}>
+
+        <h2>Create</h2>
+
+        {/* ===== ORIGINAL CONTROLS RESTORED ===== */}
+        <div style={{ marginBottom: 15 }}>
+          <button onClick={() => setIsPlaying(!isPlaying)}>
+            {isPlaying ? "Stop" : "Play"}
+          </button>
+
+          <button
+            onClick={() => setMetronome(!metronome)}
+            style={{ marginLeft: 10 }}
+          >
+            Metronome: {metronome ? "On" : "Off"}
+          </button>
+
+          <button onClick={exportWav} style={{ marginLeft: 10 }}>
+            Export WAV
+          </button>
+
+          <button onClick={exportMp3} style={{ marginLeft: 10 }}>
+            Export MP3
+          </button>
+
+          <button onClick={shareTrack} style={{ marginLeft: 10 }}>
+            Share
+          </button>
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <span style={{ marginRight: 10 }}>BPM: {bpm}</span>
+          <input
+            type="range"
+            min="60"
+            max="180"
+            value={bpm}
+            onChange={(e) => setBpm(parseInt(e.target.value))}
+          />
+        </div>
+
+        {/* ===== REMIX BUTTON ===== */}
+        <div style={{ marginBottom: 20 }}>
+          <button onClick={handleRemix}>
+            Remix This
+          </button>
+        </div>
+
+        {/* ===== TRACK CONTROLS ===== */}
+        <div style={{ marginBottom: 15 }}>
+          <button onClick={addTrack}>
+            Add Track ({tracks.length}/{MAX_TRACKS})
+          </button>
+        </div>
+
+        <div style={{ maxHeight: 400, overflowY: "auto" }}>
+          {tracks.map((track, trackIndex) => (
+            <div key={trackIndex} style={{ marginBottom: 12 }}>
+
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div>Track {trackIndex + 1}</div>
+                <button onClick={() => removeTrack(trackIndex)}>
+                  Remove
+                </button>
+              </div>
+
+              <div style={{ display: "flex", gap: 4 }}>
+                {track.map((step, stepIndex) => (
+                  <div
+                    key={stepIndex}
+                    onClick={() => toggleStep(trackIndex, stepIndex)}
+                    style={{
+                      width: 24,
+                      height: 24,
+                      background: step ? "#00ffff" : "#333",
+                      borderRadius: 4,
+                      cursor: "pointer"
+                    }}
+                  />
+                ))}
+              </div>
+
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 25 }}>
+          <EffectsRack />
+        </div>
+
+        <div style={{ marginTop: 25 }}>
+          <CommentSection sessionId="circuit-session" />
+        </div>
+
+      </div>
+
+    </div>
+  )
+}

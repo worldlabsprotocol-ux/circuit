@@ -1,0 +1,65 @@
+import { useState } from "react"
+import LoopBrowser from "../components/LoopBrowser"
+import { loadSample, playSample } from "../audio/SimpleSampler"
+
+export default function Circuit() {
+  const [tracks, setTracks] = useState(
+    Array.from({ length: 8 }, () => ({
+      pattern: Array(16).fill(false),
+      buffer: null
+    }))
+  )
+
+  const toggleStep = (trackIndex, stepIndex) => {
+    const updated = [...tracks]
+    updated[trackIndex].pattern[stepIndex] = !updated[trackIndex].pattern[stepIndex]
+    setTracks(updated)
+  }
+
+  const assignSampleToTrack = async (sample) => {
+    const buffer = await loadSample(sample.file)
+    const updated = [...tracks]
+    updated[0].buffer = buffer   // assigns to Track 1 for now
+    setTracks(updated)
+  }
+
+  const play = () => {
+    tracks.forEach(track => {
+      if (track.buffer) playSample(track.buffer)
+    })
+  }
+
+  return (
+    <div style={{ display: "flex" }}>
+      <LoopBrowser onAssign={assignSampleToTrack} />
+
+      <div style={{ flex: 1, padding: 20 }}>
+        <h2 style={{ color: "#0ff" }}>Create</h2>
+        <button onClick={play}>Play</button>
+
+        {tracks.map((track, tIndex) => (
+          <div key={tIndex} style={{ margin: "10px 0" }}>
+            <span style={{ color: "#0ff", marginRight: 10 }}>
+              Track {tIndex + 1}
+            </span>
+            {track.pattern.map((step, sIndex) => (
+              <span
+                key={sIndex}
+                onClick={() => toggleStep(tIndex, sIndex)}
+                style={{
+                  display: "inline-block",
+                  width: 25,
+                  height: 25,
+                  margin: 4,
+                  background: step ? "#0ff" : "#222",
+                  borderRadius: 6,
+                  cursor: "pointer"
+                }}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

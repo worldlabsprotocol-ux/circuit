@@ -1,47 +1,47 @@
 import { useEffect, useRef } from "react"
 
 export default function Starfield() {
-  const canvasRef = useRef()
+  const canvasRef = useRef(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
     const ctx = canvas.getContext("2d")
 
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
+    const resize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
 
-    const stars = Array.from({ length: 350 }).map(() => ({
+    resize()
+    window.addEventListener("resize", resize)
+
+    const stars = Array.from({ length: 200 }).map(() => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      size: Math.random() * 2,
-      speed: Math.random() * 0.4 + 0.1,
-      depth: Math.random()
+      speed: Math.random() * 0.5 + 0.2
     }))
 
     function animate() {
-      ctx.fillStyle = "#050816"
+      ctx.fillStyle = "black"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
+      ctx.fillStyle = "#00ffff"
+
       stars.forEach(star => {
-        star.y += star.speed * (0.5 + star.depth)
-        if (star.y > canvas.height) star.y = 0
-
-        ctx.beginPath()
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2)
-
-        if (star.depth > 0.8) {
-          ctx.fillStyle = "#8A2BE2"
-        } else {
-          ctx.fillStyle = "#00F0FF"
+        star.y += star.speed
+        if (star.y > canvas.height) {
+          star.y = 0
+          star.x = Math.random() * canvas.width
         }
-
-        ctx.fill()
+        ctx.fillRect(star.x, star.y, 2, 2)
       })
 
       requestAnimationFrame(animate)
     }
 
     animate()
+
+    return () => window.removeEventListener("resize", resize)
   }, [])
 
   return (

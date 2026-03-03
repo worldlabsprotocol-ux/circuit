@@ -1,0 +1,118 @@
+import { useEffect, useState } from "react"
+import * as Tone from "tone"
+
+let reverb = new Tone.Reverb({ decay: 3, wet: 0 }).toDestination()
+let delay = new Tone.FeedbackDelay("8n", 0.3).toDestination()
+let chorus = new Tone.Chorus(4, 2.5, 0.5).toDestination()
+let compressor = new Tone.Compressor(-18, 3).toDestination()
+
+let eq = new Tone.EQ3({
+  low: 0,
+  mid: 0,
+  high: 0
+}).toDestination()
+
+export default function EffectsRack() {
+  const [rev, setRev] = useState(0)
+  const [del, setDel] = useState(0)
+  const [low, setLow] = useState(0)
+  const [mid, setMid] = useState(0)
+  const [high, setHigh] = useState(0)
+  const [chor, setChor] = useState(0)
+  const [comp, setComp] = useState(-18)
+
+  useEffect(() => {
+    reverb.wet.value = rev
+  }, [rev])
+
+  useEffect(() => {
+    delay.wet.value = del
+  }, [del])
+
+  useEffect(() => {
+    eq.low.value = low
+    eq.mid.value = mid
+    eq.high.value = high
+  }, [low, mid, high])
+
+  useEffect(() => {
+    chorus.wet.value = chor
+  }, [chor])
+
+  useEffect(() => {
+    compressor.threshold.value = comp
+  }, [comp])
+
+  return (
+    <div
+      style={{
+        background: "#111",
+        padding: 20,
+        borderTop: "1px solid #222",
+        marginTop: 30
+      }}
+    >
+      <h3 style={{ color: "#0ff", marginBottom: 15 }}>Effects Rack</h3>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+
+        <div>
+          <label>Reverb</label>
+          <input type="range" min="0" max="1" step="0.01"
+            value={rev}
+            onChange={(e)=>setRev(parseFloat(e.target.value))}
+          />
+        </div>
+
+        <div>
+          <label>Delay</label>
+          <input type="range" min="0" max="1" step="0.01"
+            value={del}
+            onChange={(e)=>setDel(parseFloat(e.target.value))}
+          />
+        </div>
+
+        <div>
+          <label>Chorus</label>
+          <input type="range" min="0" max="1" step="0.01"
+            value={chor}
+            onChange={(e)=>setChor(parseFloat(e.target.value))}
+          />
+        </div>
+
+        <div>
+          <label>Low EQ</label>
+          <input type="range" min="-20" max="20" step="1"
+            value={low}
+            onChange={(e)=>setLow(parseInt(e.target.value))}
+          />
+        </div>
+
+        <div>
+          <label>Mid EQ</label>
+          <input type="range" min="-20" max="20" step="1"
+            value={mid}
+            onChange={(e)=>setMid(parseInt(e.target.value))}
+          />
+        </div>
+
+        <div>
+          <label>High EQ</label>
+          <input type="range" min="-20" max="20" step="1"
+            value={high}
+            onChange={(e)=>setHigh(parseInt(e.target.value))}
+          />
+        </div>
+
+        <div>
+          <label>Compressor Threshold</label>
+          <input type="range" min="-40" max="0" step="1"
+            value={comp}
+            onChange={(e)=>setComp(parseInt(e.target.value))}
+          />
+        </div>
+
+      </div>
+    </div>
+  )
+}

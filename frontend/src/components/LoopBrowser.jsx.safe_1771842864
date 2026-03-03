@@ -1,0 +1,39 @@
+import { loadSample } from "../audio/SimpleSampler"
+
+const samples = {
+  Drums: [
+    { name: "Kick 808", file: "/samples/kick.wav" },
+    { name: "Snare Tight", file: "/samples/snare.wav" },
+    { name: "HiHat Trap", file: "/samples/hihat.wav" }
+  ],
+  Bass: [
+    { name: "Sub Bass", file: "/samples/bass.wav" }
+  ],
+  Melodies: [
+    { name: "Pluck Melody", file: "/samples/melody.wav" }
+  ],
+  Vocals: [],
+  FX: []
+}
+
+export default function LoopBrowser({ onAssign }) {
+  return (
+    <div style={{ width: 220, padding: 20 }}>
+      <h3 style={{ color: "#0ff" }}>Samples</h3>
+      {Object.keys(samples).map(category => (
+        <div key={category} style={{ marginBottom: 15 }}>
+          <div style={{ color: "#0ff", fontWeight: "bold" }}>{category}</div>
+          {samples[category].map(sample => (
+            <div
+              key={sample.name}
+              style={{ cursor: "pointer", padding: "4px 0", color: "#aaa" }}
+              onClick={() => onAssign(sample)}
+            >
+              {sample.name}
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}

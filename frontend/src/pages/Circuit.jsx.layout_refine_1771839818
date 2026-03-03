@@ -1,0 +1,80 @@
+import React, { useState } from "react"
+import LoopBrowser from "../components/LoopBrowser"
+import EffectsRack from "../components/EffectsRack"
+import CommentSection from "../components/CommentSection"
+
+export default function Circuit() {
+  const [bpm, setBpm] = useState(120)
+
+  const tracks = Array.from({ length: 8 }, () =>
+    Array.from({ length: 16 }, () => false)
+  )
+
+  function exportWav() {
+    alert("Export WAV coming")
+  }
+
+  return (
+    <div style={{ display: "flex", height: "100%", padding: 20 }}>
+
+      {/* LEFT SIDEBAR */}
+      <div style={{ width: 220 }}>
+        <LoopBrowser />
+      </div>
+
+      {/* CENTER CONTENT */}
+      <div style={{ flex: 1, paddingLeft: 40 }}>
+
+        <h2>Create</h2>
+
+        <div style={{ marginBottom: 20 }}>
+          <button>Play</button>
+          <button style={{ marginLeft: 8 }}>Metronome: Off</button>
+          <button onClick={exportWav} style={{ marginLeft: 8 }}>Export WAV</button>
+          <button style={{ marginLeft: 8 }}>Export MP3</button>
+          <button style={{ marginLeft: 8 }}>Share</button>
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          BPM: {bpm}
+          <input
+            type="range"
+            min="60"
+            max="180"
+            value={bpm}
+            onChange={(e) => setBpm(parseInt(e.target.value))}
+            style={{ width: 200, marginLeft: 10 }}
+          />
+        </div>
+
+        {/* GRID */}
+        {tracks.map((row, rowIndex) => (
+          <div key={rowIndex} style={{ display: "flex", marginBottom: 6 }}>
+            {row.map((cell, colIndex) => (
+              <div
+                key={colIndex}
+                style={{
+                  width: 28,
+                  height: 28,
+                  marginRight: 4,
+                  borderRadius: 4,
+                  border: "1px solid #00ffff33",
+                  background: "#111"
+                }}
+              />
+            ))}
+          </div>
+        ))}
+
+        <CommentSection sessionId="circuit-session" />
+
+      </div>
+
+      {/* RIGHT SIDE EFFECTS */}
+      <div style={{ width: 300, paddingLeft: 40 }}>
+        <EffectsRack />
+      </div>
+
+    </div>
+  )
+}

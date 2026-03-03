@@ -1,0 +1,27 @@
+import React, { useState } from "react";
+import { Buffer } from "buffer";
+window.Buffer = Buffer;
+
+import Home from "./pages/Home";
+import Create from "./pages/Create";
+import Microphone from "./pages/Microphone";
+import Royalties from "./pages/Royalties";
+import Mix from "./pages/Mix";
+
+function App() {
+  const [activeTab, setActiveTab] = useState("Create");
+
+  return (
+    <div style={{ background: "#000", color: "#0ff", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      
+      <header style={{ padding: "2rem", textAlign: "center" }}>
+        <h1 style={{ fontSize: "3rem" }}>CIRCUIT</h1>
+      </header>
+
+      <main style={{ flex: 1, padding: "1rem", paddingBottom: "5rem" }}>
+        {activeTab === "Home" && <Home />}
+        {activeTab === "Create" && <Create />}
+        {activeTab === "Microphone" && <Microphone />}
+        {activeTab === "Royalties" && <Royalties />}
+        {activeTab === "Mix" && <Mix />}
+ 
