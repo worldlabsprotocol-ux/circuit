@@ -598,7 +598,7 @@ return (
           border: "1px solid rgba(0,255,255,0.15)"
         }}>
           <button
-         onClick={async () => {
+      onClick={async () => {
   if (!audioRef.current) {
     await initAudio();
   }
@@ -789,7 +789,7 @@ return (
          <div
   key={stepIndex}
   onPointerDown={(e) => {
-    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
     setIsDrawing(true);
     toggleStep(trackIndex, stepIndex);
   }}
@@ -797,7 +797,10 @@ return (
     if (!isDrawing) return;
     toggleStep(trackIndex, stepIndex);
   }}
-  onPointerUp={() => setIsDrawing(false)}
+  onPointerUp={(e) => {
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    setIsDrawing(false);
+  }}
   style={{
     width: 32,
     height: 32,
