@@ -108,44 +108,43 @@ export default function Circuit() {
 
   // ================= AUDIO ENGINE =================
 
-  const sharedReverb = useMemo(() => new Tone.Reverb({ decay: 2, wet: 0.3 }), []);
-  const sharedDelay = useMemo(() => new Tone.FeedbackDelay("8n", 0.2), []);
+  const audioRef = useRef(null);
 
-  const kick = useMemo(() => new Tone.MembraneSynth(), []);
-  const snare = useMemo(() => new Tone.NoiseSynth({
+const initAudio = async () => {
+  if (audioRef.current) return;
+
+  await Tone.start();
+
+  const sharedReverb = new Tone.Reverb({ decay: 2, wet: 0.3 });
+  const sharedDelay = new Tone.FeedbackDelay("8n", 0.2);
+
+  sharedReverb.connect(sharedDelay);
+  sharedDelay.toDestination();
+
+  const kick = new Tone.MembraneSynth().connect(sharedReverb);
+  const snare = new Tone.NoiseSynth({
     noise: { type: "white" },
     envelope: { attack: 0.001, decay: 0.15, sustain: 0 }
-  }), []);
-  const hat = useMemo(() => new Tone.NoiseSynth({
+  }).connect(sharedReverb);
+
+  const hat = new Tone.NoiseSynth({
     noise: { type: "white" },
     envelope: { attack: 0.001, decay: 0.05, sustain: 0 }
-  }), []);
-  const bass = useMemo(() => new Tone.Synth({ oscillator: { type: "sine" } }), []);
-  const melody = useMemo(() => new Tone.Synth({ oscillator: { type: "triangle" } }), []);
+  }).connect(sharedReverb);
 
-  useEffect(() => {
-    sharedReverb.connect(sharedDelay);
-    sharedDelay.toDestination();
-    kick.connect(sharedReverb);
-    snare.connect(sharedReverb);
-    hat.connect(sharedReverb);
-    bass.connect(sharedReverb);
-    melody.connect(sharedReverb);
+  const bass = new Tone.Synth({ oscillator: { type: "sine" } }).connect(sharedReverb);
+  const melody = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(sharedReverb);
 
-    return () => {
-      sharedReverb.dispose();
-      sharedDelay.dispose();
-      kick.dispose();
-      snare.dispose();
-      hat.dispose();
-      bass.dispose();
-      melody.dispose();
-    };
-  }, []);
-
-  useEffect(() => { sharedReverb.wet.value = reverbWet; }, [reverbWet]);
-  useEffect(() => { sharedDelay.wet.value = delayWet; }, [delayWet]);
-
+  audioRef.current = {
+    sharedReverb,
+    sharedDelay,
+    kick,
+    snare,
+    hat,
+    bass,
+    melody
+  };
+};
   // Single audio context unlock
   useEffect(() => {
     const unlock = async () => {
@@ -166,31 +165,37 @@ export default function Circuit() {
   }, []);
 
   // Metronome
-  function playTick() {
-    const tick = new Tone.Synth({
-      oscillator: { type: "square" },
-      envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.05 }
-    }).connect(sharedReverb);
+function playTick() {
+  const engine = audioRef.current;
+  if (!engine) return;
 
-    tick.triggerAttackRelease("C6", "16n");
-    setTimeout(() => tick.dispose(), 200);
-  }
+  const tick = new Tone.Synth({
+    oscillator: { type: "square" },
+    envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.05 }
+  }).connect(engine.sharedReverb);
+
+  tick.triggerAttackRelease("C6", "16n");
+  setTimeout(() => tick.dispose(), 200);
+}
 
   // Play sound
-  function playSound(trackIndex) {
-    const meta = tracksMeta[trackIndex];
-    if (meta.mute) return;
-    if (anySoloOn && !meta.solo) return;
+ function playSound(trackIndex) {
+  const engine = audioRef.current;
+  if (!engine) return;
 
-    if (trackIndex === 0) return kick.triggerAttackRelease("C1", "8n");
-    if (trackIndex === 1) return snare.triggerAttackRelease("16n");
-    if (trackIndex === 2) return hat.triggerAttackRelease("32n");
-    if (trackIndex === 3) return bass.triggerAttackRelease("C2", "8n");
+  const meta = tracksMeta[trackIndex];
+  if (meta.mute) return;
+  if (anySoloOn && !meta.solo) return;
 
-    const notes = ["C4", "D4", "E4", "G4", "A4"];
-    const note = notes[Math.floor(Math.random() * notes.length)];
-    melody.triggerAttackRelease(note, "8n");
-  }
+  if (trackIndex === 0) return engine.kick.triggerAttackRelease("C1", "8n");
+  if (trackIndex === 1) return engine.snare.triggerAttackRelease("16n");
+  if (trackIndex === 2) return engine.hat.triggerAttackRelease("32n");
+  if (trackIndex === 3) return engine.bass.triggerAttackRelease("C2", "8n");
+
+  const notes = ["C4", "D4", "E4", "G4", "A4"];
+  const note = notes[Math.floor(Math.random() * notes.length)];
+  engine.melody.triggerAttackRelease(note, "8n");
+}
 
   // Scheduler
   useEffect(() => {
@@ -591,10 +596,10 @@ export default function Circuit() {
           border: "1px solid rgba(0,255,255,0.15)"
         }}>
           <button
-            onClick={async () => {
-              await Tone.start();
-              setIsPlaying(prev => !prev);
-            }}
+          onClick={async () => {
+  await initAudio();
+  setIsPlaying(prev => !prev);
+}}
             style={{
               padding: "10px 18px",
               borderRadius: 10,
