@@ -4,7 +4,7 @@ export default function Royalties() {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        minHeight: '100dvh',
         background: 'linear-gradient(135deg, #0a0f1a 0%, #000814 100%)',
         color: '#ffffff',
         fontFamily: 'system-ui, -apple-system, sans-serif',
