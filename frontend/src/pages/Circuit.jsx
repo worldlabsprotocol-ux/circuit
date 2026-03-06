@@ -460,17 +460,19 @@ function playTick() {
   });
 
   /* ================= UI ================= */
-  return (
-    <div
-      style={{
-        position: "relative",
-        display: "flex",
-        padding: 24,
-        gap: 18,
-        minHeight: "80vh",
-        background: darkMode ? "#0b0f14" : "#f5f5f5",
-        color: darkMode ? "#ffffff" : "#111111",
-      }}
+return (
+  <div
+    style={{
+      position: "relative",
+      display: "flex",
+      flexDirection: window.innerWidth < 900 ? "column" : "row",
+      padding: window.innerWidth < 900 ? 12 : 24,
+      gap: 16,
+      minHeight: "100dvh",
+      overflowY: "auto",
+      background: darkMode ? "#0b0f14" : "#f5f5f5",
+      color: darkMode ? "#ffffff" : "#111111",
+    }}
       onMouseUp={handlePointerUp}
       onTouchEnd={handlePointerUp}
     >
@@ -545,7 +547,7 @@ function playTick() {
       )}
 
       {/* LEFT SIDEBAR - Samples */}
-      <div style={{ width: 240 }}>
+     <div style={{ width: window.innerWidth < 900 ? "100%" : 240 }}>
         <div
           style={{
             border: "1px solid rgba(0,255,255,0.15)",
@@ -806,7 +808,7 @@ function playTick() {
       </div>
 
       {/* RIGHT - Effects */}
-      <div style={{ width: 260 }}>
+      <div style={{ width: window.innerWidth < 900 ? "100%" : 260 }}>
         <EffectsRack
           reverbWet={reverbWet} setReverbWet={setReverbWet}
           delayWet={delayWet} setDelayWet={setDelayWet}
@@ -823,16 +825,16 @@ function playTick() {
       </div>
 
       {/* SOCIAL FEED */}
-      <div
-        style={{
-          width: 300,
-          border: "1px solid rgba(0,255,255,0.15)",
-          borderRadius: 14,
-          padding: 16,
-          maxHeight: 420,
-          overflowY: "auto",
-        }}
-      >
+<div
+  style={{
+    width: window.innerWidth < 900 ? "100%" : 300,
+    border: "1px solid rgba(0,255,255,0.15)",
+    borderRadius: 14,
+    padding: 16,
+    maxHeight: window.innerWidth < 900 ? "none" : 420,
+    overflowY: window.innerWidth < 900 ? "visible" : "auto",
+  }}
+>
         <h3 style={{ color: "#00ffff" }}>Trending</h3>
         {[
           { id: 1, name: "Neon Pulse", creator: "circuit.skr", likes: 124 },
