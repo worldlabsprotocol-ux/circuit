@@ -198,11 +198,11 @@ function playTick() {
 }
 
   // Scheduler
-  useEffect(() => {
-    if (!isPlaying) {
-      if (schedulerRef.current) clearInterval(schedulerRef.current);
-      return;
-    }
+ useEffect(() => {
+  if (!isPlaying || !audioRef.current) {
+    if (schedulerRef.current) clearInterval(schedulerRef.current);
+    return;
+  }
 
     const interval = (60000 / bpm) / 4;
 
@@ -598,8 +598,15 @@ return (
           border: "1px solid rgba(0,255,255,0.15)"
         }}>
           <button
-          onClick={async () => {
-  await initAudio();
+         onClick={async () => {
+  if (!audioRef.current) {
+    await initAudio();
+  }
+
+  if (Tone.context.state !== "running") {
+    await Tone.context.resume();
+  }
+
   setIsPlaying(prev => !prev);
 }}
             style={{
@@ -779,25 +786,33 @@ return (
               {/* Steps */}
               <div style={{ display: "flex", gap: 4, flex: 1 }}>
                 {track.map((step, stepIndex) => (
-                  <div
-                    key={stepIndex}
-                    onMouseDown={() => handlePointerDown(trackIndex, stepIndex)}
-                    onMouseEnter={() => handlePointerEnter(trackIndex, stepIndex)}
-                    onTouchStart={() => handlePointerDown(trackIndex, stepIndex)}
-                    onTouchMove={() => handlePointerEnter(trackIndex, stepIndex)}
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 8,
-                      background: step ? "#00ffff" : "rgba(255,255,255,0.08)",
-                      border: isPlaying && playStep === stepIndex
-                        ? "2px solid #ffffff"
-                        : "1px solid rgba(0,255,255,0.2)",
-                      boxShadow: step ? "0 0 12px rgba(0,255,255,0.6)" : "none",
-                      transition: "all 0.08s ease",
-                      cursor: "pointer"
-                    }}
-                  />
+         <div
+  key={stepIndex}
+  onPointerDown={(e) => {
+    e.preventDefault();
+    setIsDrawing(true);
+    toggleStep(trackIndex, stepIndex);
+  }}
+  onPointerEnter={() => {
+    if (!isDrawing) return;
+    toggleStep(trackIndex, stepIndex);
+  }}
+  onPointerUp={() => setIsDrawing(false)}
+  style={{
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    background: step ? "#00ffff" : "rgba(255,255,255,0.08)",
+    border:
+      isPlaying && playStep === stepIndex
+        ? "2px solid #ffffff"
+        : "1px solid rgba(0,255,255,0.2)",
+    boxShadow: step ? "0 0 12px rgba(0,255,255,0.6)" : "none",
+    transition: "all 0.08s ease",
+    cursor: "pointer",
+    touchAction: "none",
+  }}
+/>
                 ))}
               </div>
             </div>
