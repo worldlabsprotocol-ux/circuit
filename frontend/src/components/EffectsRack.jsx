@@ -3,36 +3,34 @@ import React from "react";
 export default function EffectsRack(props) {
 
   const section = {
-    border: "1px solid rgba(0,255,255,0.2)",
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 16,
-    background: "rgba(0,255,255,0.05)"
-  };
+  border: "1px solid rgba(0,255,255,0.2)",
+  borderRadius: 10,
+  padding: 10,
+  marginBottom: 8,
+  background: "rgba(0,255,255,0.05)"
+};
 
   const label = {
-    fontSize: 13,
-    marginBottom: 6,
-    display: "flex",
-    justifyContent: "space-between"
-  };
+  fontSize: 12,
+  marginBottom: 4,
+  display: "flex",
+  justifyContent: "space-between"
+};
 
-  const slider = {
-    width: "100%",
-    marginTop: 6
-  };
+ const slider = {
+  width: "100%",
+  marginTop: 4,
+  height: 4,
+  cursor: "pointer"
+};
 
  return (
   <div style={{ padding: 12 }}>
-    <h3 style={{ color: "#00ffff", marginBottom: 20 }}>
-      Effects Chain
-    </h3>
-
     <div
       style={{
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
-        gap: 14,
+        gap: 8,
       }}
     >
       {/* REVERB */}
