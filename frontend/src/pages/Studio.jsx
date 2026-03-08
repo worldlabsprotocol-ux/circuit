@@ -35,6 +35,18 @@ export default function Studio() {
   const [playStep, setPlayStep] = useState(0);
   const [darkMode, setDarkMode] = useState(true);
 
+  // ✅ SAFE ADD: wallet injection check (prevents WalletNotReadyError / phantom.com behavior)
+  const hasInjectedSolana =
+    typeof window !== "undefined" &&
+    (window.solana?.isPhantom ||
+      window.solana?.isBackpack ||
+      window.phantom?.solana ||
+      window.backpack);
+
+  // ✅ Coming soon alert (short, clean, consistent)
+  const comingSoon = (feature = "This feature") =>
+    alert(`${feature} is coming soon. Thanks for checking it out.`);
+
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 900);
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 900);
@@ -42,7 +54,9 @@ export default function Studio() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const [tracks, setTracks] = useState(Array.from({ length: 8 }, () => Array(16).fill(false)));
+  const [tracks, setTracks] = useState(
+    Array.from({ length: 8 }, () => Array(16).fill(false))
+  );
 
   const [tracksMeta, setTracksMeta] = useState(
     Array.from({ length: 8 }, (_, i) => ({
@@ -157,12 +171,22 @@ export default function Studio() {
         noise: { type: "white" },
         envelope: { attack: 0.001, decay: 0.05, sustain: 0 },
       }).connect(reverb);
-      const bass = new Tone.Synth({ oscillator: { type: "sine" } }).connect(reverb);
+      const bass = new Tone.Synth({ oscillator: { type: "sine" } }).connect(
+        reverb
+      );
 
-      const melody4 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(reverb);
-      const melody5 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(reverb);
-      const melody6 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(reverb);
-      const melody7 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(reverb);
+      const melody4 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(
+        reverb
+      );
+      const melody5 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(
+        reverb
+      );
+      const melody6 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(
+        reverb
+      );
+      const melody7 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(
+        reverb
+      );
 
       const metronome = new Tone.Synth({
         oscillator: { type: "square" },
@@ -172,7 +196,16 @@ export default function Studio() {
       audioEngine.current = {
         reverb,
         delay,
-        instruments: [kick, snare, hat, bass, melody4, melody5, melody6, melody7],
+        instruments: [
+          kick,
+          snare,
+          hat,
+          bass,
+          melody4,
+          melody5,
+          melody6,
+          melody7,
+        ],
         metronome,
       };
 
@@ -184,7 +217,10 @@ export default function Studio() {
 
   const ensureMicPermission = async () => {
     try {
-      if (streamRef.current && streamRef.current.getTracks?.().some((t) => t.readyState === "live")) {
+      if (
+        streamRef.current &&
+        streamRef.current.getTracks?.().some((t) => t.readyState === "live")
+      ) {
         setMicReady(true);
         return streamRef.current;
       }
@@ -230,7 +266,9 @@ export default function Studio() {
     };
 
     const events = ["click", "touchstart", "pointerdown", "mousedown"];
-    events.forEach((event) => window.addEventListener(event, unlockAudio, { passive: true }));
+    events.forEach((event) =>
+      window.addEventListener(event, unlockAudio, { passive: true })
+    );
 
     return () => {
       events.forEach((event) => window.removeEventListener(event, unlockAudio));
@@ -332,7 +370,9 @@ export default function Studio() {
   const toggleStep = (trackIndex, stepIndex) => {
     setTracks((prev) => {
       const newTracks = prev.map((row, i) =>
-        i === trackIndex ? row.map((cell, j) => (j === stepIndex ? !cell : cell)) : row
+        i === trackIndex
+          ? row.map((cell, j) => (j === stepIndex ? !cell : cell))
+          : row
       );
 
       setHistory((prevHistory) => {
@@ -345,7 +385,6 @@ export default function Studio() {
     });
   };
 
-  // ✅ Only preventDefault while drawing on grid
   const handlePointerDown = (trackIndex, stepIndex, e) => {
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -405,7 +444,10 @@ export default function Studio() {
         recorder.startRecording();
         setIsRecording(true);
         setRecordingTime(0);
-        timerRef.current = setInterval(() => setRecordingTime((t) => t + 1), 1000);
+        timerRef.current = setInterval(
+          () => setRecordingTime((t) => t + 1),
+          1000
+        );
       } catch (err) {
         console.error("Mic access denied:", err);
         alert("Microphone access denied. Please allow permission.");
@@ -430,7 +472,9 @@ export default function Studio() {
     if (!recordedBlob) return;
     const chopName = `Chopped Mic ${Object.keys(customSamples).length + 1}`;
     setCustomSamples((prev) => ({ ...prev, [chopName]: recordedUrl }));
-    alert(`"${chopName}" added to Samples! Click it to assign to a track and layer over your beat.`);
+    alert(
+      `"${chopName}" added to Samples! Click it to assign to a track and layer over your beat.`
+    );
     cleanupAfterRecord();
   };
 
@@ -458,30 +502,11 @@ export default function Studio() {
     }
   };
 
-  const onClear = () => setTracks(Array.from({ length: 8 }, () => Array(16).fill(false)));
+  const onClear = () =>
+    setTracks(Array.from({ length: 8 }, () => Array(16).fill(false)));
 
-  const onSave = () => {
-    if (!connected || !publicKey) {
-      alert("Connect wallet to save your beat.");
-      return;
-    }
-
-    const session = {
-      id: Date.now(),
-      owner: publicKey ? publicKey.toString() : "guest",
-      name: `Session ${new Date().toLocaleTimeString()}`,
-      tracks: tracks.map((row) => [...row]),
-      tracksMeta: tracksMeta.map((m) => ({ ...m })),
-      bpm,
-      timestamp: Date.now(),
-    };
-
-    const updated = [...sessions, session];
-    setSessions(updated);
-    localStorage.setItem("circuit_sessions", JSON.stringify(updated));
-
-    alert("Beat saved under wallet: " + publicKey.toString());
-  };
+  // ✅ Coming soon: Save (wallet not required for submission build)
+  const onSave = () => comingSoon("Saving beats");
 
   const onExport = () => {
     alert("Preview Export: Recording feature allows capturing your loop for now.");
@@ -566,14 +591,19 @@ export default function Studio() {
         >
           <div style={{ fontSize: 48, marginBottom: 20 }}>RECORDING...</div>
           <div style={{ fontSize: 24, marginBottom: 30 }}>
-            {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, "0")}
+            {Math.floor(recordingTime / 60)}:
+            {(recordingTime % 60).toString().padStart(2, "0")}
           </div>
           <div style={{ display: "flex", gap: 20 }}>
             <button style={controlBtn} {...tap(() => setMonitorBeat((p) => !p))}>
               Monitor Beat: {monitorBeat ? "ON" : "OFF"}
             </button>
             <button
-              style={{ ...controlBtn, background: "rgba(255,0,0,0.4)", borderColor: "#ff4444" }}
+              style={{
+                ...controlBtn,
+                background: "rgba(255,0,0,0.4)",
+                borderColor: "#ff4444",
+              }}
               {...tap(handleToggleRecord)}
             >
               STOP
@@ -598,22 +628,60 @@ export default function Studio() {
           }}
         >
           <h2 style={{ marginBottom: 20 }}>Recording Complete</h2>
-          <audio controls src={recordedUrl} style={{ marginBottom: 30, width: "80%", maxWidth: 400 }} />
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
-            <button style={controlBtn} {...tap(handleKeepFull)}>Keep Full</button>
-            <button style={controlBtn} {...tap(handleChopAndAdd)}>Chop & Add</button>
-            <button style={{ ...controlBtn, background: "rgba(100,100,100,0.4)" }} {...tap(cleanupAfterRecord)}>
+          <audio
+            controls
+            src={recordedUrl}
+            style={{ marginBottom: 30, width: "80%", maxWidth: 400 }}
+          />
+          <div
+            style={{
+              display: "flex",
+              gap: 16,
+              flexWrap: "wrap",
+              justifyContent: "center",
+            }}
+          >
+            <button style={controlBtn} {...tap(handleKeepFull)}>
+              Keep Full
+            </button>
+            <button style={controlBtn} {...tap(handleChopAndAdd)}>
+              Chop & Add
+            </button>
+            <button
+              style={{ ...controlBtn, background: "rgba(100,100,100,0.4)" }}
+              {...tap(cleanupAfterRecord)}
+            >
               Discard
             </button>
           </div>
         </div>
       )}
 
-      <div style={{ width: isMobile ? "100%" : 280, display: "flex", flexDirection: "column", gap: 16 }}>
-      
-        <div style={{ border: "1px solid rgba(0,255,255,0.15)", borderRadius: 14, padding: 16, background: "rgba(0,255,255,0.04)" }}>
+      <div
+        style={{
+          width: isMobile ? "100%" : 280,
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+        }}
+      >
+        <div
+          style={{
+            border: "1px solid rgba(0,255,255,0.15)",
+            borderRadius: 14,
+            padding: 16,
+            background: "rgba(0,255,255,0.04)",
+          }}
+        >
           <h3 style={{ color: "#00ffff", marginBottom: 12 }}>Samples</h3>
-          {["Kick 808", "Snare Tight", "HiHat Trap", "Sub Bass", "Pluck Melody", ...Object.keys(customSamples)].map((sample) => (
+          {[
+            "Kick 808",
+            "Snare Tight",
+            "HiHat Trap",
+            "Sub Bass",
+            "Pluck Melody",
+            ...Object.keys(customSamples),
+          ].map((sample) => (
             <div
               key={sample}
               {...tap(() => {
@@ -628,7 +696,10 @@ export default function Studio() {
                 marginBottom: 8,
                 borderRadius: 10,
                 cursor: "pointer",
-                background: selectedSample === sample ? "rgba(0,255,255,0.25)" : "rgba(255,255,255,0.05)",
+                background:
+                  selectedSample === sample
+                    ? "rgba(0,255,255,0.25)"
+                    : "rgba(255,255,255,0.05)",
                 border: "1px solid rgba(0,255,255,0.25)",
                 transition: "all 0.15s ease",
                 fontSize: 13,
@@ -641,32 +712,73 @@ export default function Studio() {
           ))}
         </div>
 
-        <div style={{ border: "1px solid rgba(0,255,255,0.15)", borderRadius: 14, padding: 12, background: "rgba(0,255,255,0.04)", display: "flex", flexDirection: "column", gap: 8 }}>
-          <h3 style={{ color: "#00ffff", marginBottom: 8, fontSize: 14 }}>Effects Chain</h3>
+        <div
+          style={{
+            border: "1px solid rgba(0,255,255,0.15)",
+            borderRadius: 14,
+            padding: 12,
+            background: "rgba(0,255,255,0.04)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
+          <h3 style={{ color: "#00ffff", marginBottom: 8, fontSize: 14 }}>
+            Effects Chain
+          </h3>
           <EffectsRack
-            reverbWet={reverbWet} setReverbWet={setReverbWet}
-            delayWet={delayWet} setDelayWet={setDelayWet}
-            reverbOn={reverbOn} setReverbOn={setReverbOn}
-            delayOn={delayOn} setDelayOn={setDelayOn}
-            eqLow={eqLow} setEqLow={setEqLow}
-            eqMid={eqMid} setEqMid={setEqMid}
-            eqHigh={eqHigh} setEqHigh={setEqHigh}
-            compressAmount={compressAmount} setCompressAmount={setCompressAmount}
-            filterCutoff={filterCutoff} setFilterCutoff={setFilterCutoff}
-            distortionAmount={distortionAmount} setDistortionAmount={setDistortionAmount}
-            masterGain={masterGain} setMasterGain={setMasterGain}
+            reverbWet={reverbWet}
+            setReverbWet={setReverbWet}
+            delayWet={delayWet}
+            setDelayWet={setDelayWet}
+            reverbOn={reverbOn}
+            setReverbOn={setReverbOn}
+            delayOn={delayOn}
+            setDelayOn={setDelayOn}
+            eqLow={eqLow}
+            setEqLow={setEqLow}
+            eqMid={eqMid}
+            setEqMid={setEqMid}
+            eqHigh={eqHigh}
+            setEqHigh={setEqHigh}
+            compressAmount={compressAmount}
+            setCompressAmount={setCompressAmount}
+            filterCutoff={filterCutoff}
+            setFilterCutoff={setFilterCutoff}
+            distortionAmount={distortionAmount}
+            setDistortionAmount={setDistortionAmount}
+            masterGain={masterGain}
+            setMasterGain={setMasterGain}
           />
         </div>
       </div>
 
-      <div style={{ flex: 1, paddingRight: isMobile ? 8 : 12, paddingBottom: isMobile ? 16 : 20 }}>
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12, marginBottom: 12, padding: 12, borderRadius: 14, background: "rgba(0,255,255,0.04)", border: "1px solid rgba(0,255,255,0.15)" }}>
+      <div
+        style={{
+          flex: 1,
+          paddingRight: isMobile ? 8 : 12,
+          paddingBottom: isMobile ? 16 : 20,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 12,
+            padding: 12,
+            borderRadius: 14,
+            background: "rgba(0,255,255,0.04)",
+            border: "1px solid rgba(0,255,255,0.15)",
+          }}
+        >
           <button
             {...tap(async () => {
+              setIsPlaying((p) => !p);
               try {
                 await Tone.start();
                 await initAudio();
-                setIsPlaying((p) => !p);
               } catch (err) {
                 console.error("[PLAY] Error:", err);
               }
@@ -721,7 +833,11 @@ export default function Studio() {
           </button>
 
           <div style={{ display: "flex", gap: 8, marginLeft: "auto", flexWrap: "wrap" }}>
-            <WalletMultiButton />
+            {/* ✅ Coming soon instead of wallet connect for submission build */}
+            <button style={controlBtn} {...tap(() => comingSoon("Wallet connect"))}>
+              Connect (Soon)
+            </button>
+
             <button
               style={{
                 ...controlBtn,
@@ -736,23 +852,73 @@ export default function Studio() {
               🧑‍🚀 Assistant
             </button>
 
-            <button style={controlBtn} {...tap(onRemix)}>Remix</button>
-            <button style={controlBtn} {...tap(onClear)}>Clear</button>
-            <button style={controlBtn} {...tap(onSave)}>Save</button>
-            <button style={controlBtn} {...tap(onExport)}>Export</button>
+            <button style={controlBtn} {...tap(onRemix)}>
+              Remix
+            </button>
+            <button style={controlBtn} {...tap(onClear)}>
+              Clear
+            </button>
+            <button style={controlBtn} {...tap(onSave)}>
+              Save (Soon)
+            </button>
+            <button style={controlBtn} {...tap(onExport)}>
+              Export
+            </button>
           </div>
         </div>
 
         {chatOpen && (
-          <div style={{ marginBottom: 16, width: "100%", background: "rgba(0,0,0,0.92)", border: "2px solid #00ffff", borderRadius: 16, padding: 16, color: "#00ffff", boxShadow: "0 0 40px rgba(0,255,255,0.35)" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <div
+            style={{
+              marginBottom: 16,
+              width: "100%",
+              background: "rgba(0,0,0,0.92)",
+              border: "2px solid #00ffff",
+              borderRadius: 16,
+              padding: 16,
+              color: "#00ffff",
+              boxShadow: "0 0 40px rgba(0,255,255,0.35)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 10,
+              }}
+            >
               <h3 style={{ margin: 0 }}>Circuit Assistant</h3>
-              <button style={controlBtn} {...tap(() => setChatOpen(false))}>Close</button>
+              <button style={controlBtn} {...tap(() => setChatOpen(false))}>
+                Close
+              </button>
             </div>
 
-            <div style={{ maxHeight: 200, overflowY: "auto", marginBottom: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+            <div
+              style={{
+                maxHeight: 200,
+                overflowY: "auto",
+                marginBottom: 12,
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+              }}
+            >
               {chatHistory.map((msg, i) => (
-                <div key={i} style={{ alignSelf: msg.role === "user" ? "flex-end" : "flex-start", background: msg.role === "user" ? "rgba(0,255,255,0.2)" : "rgba(255,255,255,0.08)", padding: "8px 12px", borderRadius: 10, maxWidth: "80%", fontSize: 13 }}>
+                <div
+                  key={i}
+                  style={{
+                    alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
+                    background:
+                      msg.role === "user"
+                        ? "rgba(0,255,255,0.2)"
+                        : "rgba(255,255,255,0.08)",
+                    padding: "8px 12px",
+                    borderRadius: 10,
+                    maxWidth: "80%",
+                    fontSize: 13,
+                  }}
+                >
                   {msg.text}
                 </div>
               ))}
@@ -764,14 +930,26 @@ export default function Studio() {
                 value={chatMessage}
                 onChange={(e) => setChatMessage(e.target.value)}
                 placeholder="Type your question..."
-                style={{ flex: 1, padding: 10, background: "rgba(255,255,255,0.08)", border: "1px solid #00ffff", borderRadius: 8, color: "white" }}
+                style={{
+                  flex: 1,
+                  padding: 10,
+                  background: "rgba(255,255,255,0.08)",
+                  border: "1px solid #00ffff",
+                  borderRadius: 8,
+                  color: "white",
+                }}
               />
               <button
                 style={controlBtn}
                 {...tap(() => {
                   if (!chatMessage.trim()) return;
-                  const reply = "Tell me what you're trying to do and what happened, and I’ll guide you step by step.";
-                  setChatHistory((prev) => [...prev, { role: "user", text: chatMessage }, { role: "bot", text: reply }]);
+                  const reply =
+                    "Tell me what you're trying to do and what happened, and I’ll guide you step by step.";
+                  setChatHistory((prev) => [
+                    ...prev,
+                    { role: "user", text: chatMessage },
+                    { role: "bot", text: reply },
+                  ]);
                   setChatMessage("");
                 })}
               >
@@ -782,51 +960,76 @@ export default function Studio() {
         )}
 
         <div style={{ paddingRight: isMobile ? 10 : 14, paddingBottom: isMobile ? 18 : 24 }}>
-          {tracks.map((track, trackIndex) => {
-            const meta = tracksMeta[trackIndex];
-            return (
-              <div key={trackIndex} style={{ display: "flex", alignItems: "center", marginTop: 10, padding: 6, borderRadius: 10, background: meta.solo ? "rgba(0,255,255,0.08)" : "transparent" }}>
-                <div style={{ width: 110, marginRight: 8, fontSize: 10, opacity: 0.9 }}>
-                  <div style={{ marginBottom: 4, color: meta.solo ? "#00ffff" : "white", fontWeight: meta.solo ? 700 : 400 }}>
-                    {meta.name}
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", gap: 4, flex: 1, paddingRight: isMobile ? 10 : 14 }}>
-                  {track.map((step, stepIndex) => (
-                    <div
-                      key={stepIndex}
-                      onPointerDown={(e) => handlePointerDown(trackIndex, stepIndex, e)}
-                      onPointerEnter={() => handlePointerEnter(trackIndex, stepIndex)}
-                      onPointerUp={handlePointerUp}
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 8,
-                        background: step ? "#00ffff" : "rgba(255,255,255,0.08)",
-                        border: isPlaying && playStep === stepIndex ? "2px solid #ffffff" : "1px solid rgba(0,255,255,0.2)",
-                        boxShadow: step ? "0 0 12px rgba(0,255,255,0.6)" : "none",
-                        cursor: "pointer",
-                        touchAction: "none",
-                        userSelect: "none",
-                      }}
-                    />
-                  ))}
+          {tracks.map((track, trackIndex) => (
+            <div
+              key={trackIndex}
+              style={{ display: "flex", alignItems: "center", marginTop: 10, padding: 6, borderRadius: 10 }}
+            >
+              <div style={{ width: 110, marginRight: 8, fontSize: 10, opacity: 0.9 }}>
+                <div style={{ marginBottom: 4, color: "white", fontWeight: 400 }}>
+                  {tracksMeta[trackIndex]?.name}
                 </div>
               </div>
-            );
-          })}
+
+              <div style={{ display: "flex", gap: 4, flex: 1, paddingRight: isMobile ? 10 : 14 }}>
+                {track.map((step, stepIndex) => (
+                  <div
+                    key={stepIndex}
+                    onPointerDown={(e) => handlePointerDown(trackIndex, stepIndex, e)}
+                    onPointerEnter={() => handlePointerEnter(trackIndex, stepIndex)}
+                    onPointerUp={handlePointerUp}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 8,
+                      background: step ? "#00ffff" : "rgba(255,255,255,0.08)",
+                      border:
+                        isPlaying && playStep === stepIndex
+                          ? "2px solid #ffffff"
+                          : "1px solid rgba(0,255,255,0.2)",
+                      boxShadow: step ? "0 0 12px rgba(0,255,255,0.6)" : "none",
+                      cursor: "pointer",
+                      touchAction: "none",
+                      userSelect: "none",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div style={{ marginTop: 20, padding: 16, border: "1px solid rgba(0,255,255,0.15)", borderRadius: 14, background: "rgba(0,255,255,0.04)" }}>
+        <div
+          style={{
+            marginTop: 20,
+            padding: 16,
+            border: "1px solid rgba(0,255,255,0.15)",
+            borderRadius: 14,
+            background: "rgba(0,255,255,0.04)",
+          }}
+        >
           <h3 style={{ color: "#00ffff", marginBottom: 12 }}>Comments</h3>
           <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-            <input type="text" placeholder="Leave feedback..." style={{ flex: 1, padding: 10, background: "rgba(255,255,255,0.08)", border: "1px solid #00ffff", borderRadius: 8, color: "white" }} />
+            <input
+              type="text"
+              placeholder="Leave feedback..."
+              style={{
+                flex: 1,
+                padding: 10,
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid #00ffff",
+                borderRadius: 8,
+                color: "white",
+              }}
+            />
             <button
               style={{ ...controlBtn, background: "rgba(0,180,255,0.2)", borderColor: "#00aaff" }}
               {...tap(() => {
-                const commentText = "Check out this beat I made on Circuit! #Web3Music #MusicProd";
-                const url = `https://x.com/intent/tweet?text=${encodeURIComponent(commentText)}&url=${encodeURIComponent("https://circuit.skr")}`;
+                const commentText =
+                  "Check out this beat I made on Circuit! #Web3Music #MusicProd";
+                const url = `https://x.com/intent/tweet?text=${encodeURIComponent(
+                  commentText
+                )}&url=${encodeURIComponent("https://circuit.skr")}`;
                 window.open(url, "_blank");
               })}
             >
