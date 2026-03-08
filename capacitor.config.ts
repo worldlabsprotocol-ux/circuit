@@ -1,31 +1,22 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: 'com.worldlabsprotocol.circuit',
-  appName: 'Circuit',
-  webDir: 'frontend/dist',           // your build output folder – keep this
-
+  appId: "com.worldlabsprotocol.circuit",
+  appName: "Circuit",
+  webDir: "frontend/dist",
   plugins: {
     SplashScreen: {
-      launchShowDuration: 0,         // hide splash immediately after load
-      launchAutoHide: true,
-      backgroundColor: '#00000000',  // transparent/black to avoid flash
-      androidScaleType: 'CENTER_CROP',
-      showSpinner: false
-    }
+      launchShowDuration: 0,
+      backgroundColor: "#00000000",
+      androidScaleType: "CENTER_CROP",
+      showSpinner: false,
+    },
   },
-
-  server: {
-    hostname: 'localhost',           // helps with dev tools & debugging
-    cleartext: true                  // allow http for local testing (safe in dev)
-  },
-
   android: {
-    allowMixedContent: true,         // critical – lets external audio URLs load
-    captureInput: true,              // improves touch/pointer event capture on grid
-    webContentsDebuggingEnabled: true, // enables Chrome DevTools for WebView
-    backgroundColor: '#000000'       // solid black background
-  }
+    allowMixedContent: true,
+    captureInput: true,
+    backgroundColor: "#000000",
+  },
 };
 
 export default config;

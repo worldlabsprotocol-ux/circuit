@@ -1,16 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, Connection, clusterApiUrl } from '@solana/web3.js';
+import { PublicKey, Connection, clusterApiUrl, Transaction, SystemProgram } from '@solana/web3.js';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 export default function Royalties() {
-  const { publicKey, connected } = useWallet();
+  const { publicKey, connected, signTransaction } = useWallet();
   const [balance, setBalance] = useState(null);
   const [totalEarnings, setTotalEarnings] = useState(2.5); // Mock lifetime earnings
   const [pendingEarnings, setPendingEarnings] = useState(1.3);
   const [royaltiesData, setRoyaltiesData] = useState([]);
   const [loading, setLoading] = useState(false);
   const connection = new Connection(clusterApiUrl('devnet'));
+  const [splitsLocked, setSplitsLocked] = useState(false);
+
+  // Mock splits state (replace with your real splits logic)
+  const [splits, setSplits] = useState({ creator: 70, collabs: 20, community: 10 });
+
+  // Notification state for nice UI feedback
+  const [notification, setNotification] = useState(null);
+
+  const showNotification = (message, isError = false) => {
+    setNotification({ message, isError });
+    setTimeout(() => setNotification(null), 6000); // auto-dismiss after 6s
+  };
 
   useEffect(() => {
     if (connected && publicKey) {
@@ -23,7 +35,7 @@ export default function Royalties() {
     try {
       setLoading(true);
       const bal = await connection.getBalance(publicKey);
-      setBalance((bal / 1e9).toFixed(4)); // SOL with 4 decimals
+      setBalance((bal / 1e9).toFixed(4));
     } catch (err) {
       console.error('Failed to fetch balance:', err);
       setBalance('Error');
@@ -33,7 +45,6 @@ export default function Royalties() {
   };
 
   const fetchRoyalties = () => {
-    // Mock data - in real version query your royalty program or token accounts
     setRoyaltiesData([
       {
         beatName: 'Neon Pulse',
@@ -57,7 +68,46 @@ export default function Royalties() {
   };
 
   const handleClaim = (beatName) => {
-    alert(`Claiming royalties for "${beatName}" – Coming Soon! (Mock action)`);
+    showNotification(`Claiming royalties for "${beatName}" – Coming Soon!`);
+  };
+
+  // Your requested final version — simplified, no memo, just SKR signing proof
+  const lockSplitsWithSKR = async () => {
+    if (!publicKey || !signTransaction) {
+      showNotification("Connect SKR wallet first", true);
+      return;
+    }
+
+    try {
+      const { blockhash } = await connection.getLatestBlockhash();
+
+      const tx = new Transaction({
+        recentBlockhash: blockhash,
+        feePayer: publicKey,
+      });
+
+      // Tiny transfer (simulation passes reliably)
+      tx.add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: publicKey,
+          lamports: 1,
+        })
+      );
+
+      // No memo — just prove SKR signing works
+      const signedTx = await signTransaction(tx);
+
+      const signature = await connection.sendRawTransaction(signedTx.serialize());
+      await connection.confirmTransaction(signature, 'confirmed');
+
+      setSplitsLocked(true);
+      showNotification(`Royalty lock demo signed via SKR! Tx: ${signature.slice(0, 8)}...`);
+      console.log("Signature:", signature);
+    } catch (err) {
+      console.error("Lock failed:", err);
+      showNotification("Failed: " + (err.message || "Unknown error"), true);
+    }
   };
 
   return (
@@ -128,6 +178,32 @@ export default function Royalties() {
           </div>
         )}
       </div>
+
+      {/* Notification (replaces alert) */}
+      {notification && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: notification.isError ? '#ff4444' : '#00cc88',
+            color: '#fff',
+            padding: '14px 28px',
+            borderRadius: 16,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+            zIndex: 1000,
+            maxWidth: '90%',
+            textAlign: 'center',
+            fontWeight: 600,
+            fontSize: '1.1rem',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+          }}
+        >
+          {notification.message}
+        </div>
+      )}
 
       {/* Main Royalties Panel */}
       <div
@@ -212,6 +288,39 @@ export default function Royalties() {
           </p>
         )}
 
+        {/* Lock Splits Button */}
+        <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+          {splitsLocked ? (
+            <div style={{ color: '#00ff85', fontSize: '1.3rem', marginBottom: '1rem' }}>
+              ✓ Royalty Lock Demo Signed via SKR!
+            </div>
+          ) : (
+            <button
+              onClick={lockSplitsWithSKR}
+              disabled={!connected}
+              style={{
+                padding: '16px 32px',
+                background: connected ? 'linear-gradient(90deg, #00f0ff, #a78bfa)' : '#333',
+                color: connected ? '#000' : '#777',
+                border: 'none',
+                borderRadius: 50,
+                fontSize: '1.1rem',
+                fontWeight: 600,
+                cursor: connected ? 'pointer' : 'not-allowed',
+                boxShadow: connected ? '0 0 30px rgba(0, 240, 255, 0.4)' : 'none',
+                transition: 'all 0.3s ease',
+              }}
+            >
+              Lock Royalty Splits with SKR (Demo)
+            </button>
+          )}
+          {!connected && (
+            <p style={{ marginTop: '1rem', opacity: 0.7 }}>
+              Connect wallet to lock splits
+            </p>
+          )}
+        </div>
+
         {/* Embedded Google Form Waitlist */}
         <div style={{
           marginTop: '3rem',
@@ -220,7 +329,7 @@ export default function Royalties() {
           border: '1px solid rgba(0, 240, 255, 0.3)',
           borderRadius: 20,
           backdropFilter: 'blur(16px)',
-          boxShadow: '0 12px 40px rgba(0, 240, 255, 0.15)',
+          boxShadow: '0 12px 40px rgba(0, 240, 255, 0.12)',
         }}>
           <h3 style={{
             fontSize: '1.8rem',
@@ -235,7 +344,6 @@ export default function Royalties() {
             Be the first to know when on-chain royalty splits, auto-payouts, and the full dashboard go live.
           </p>
 
-          {/* Your Google Form Embedded Here */}
           <iframe
             src="https://docs.google.com/forms/d/e/1FAIpQLSdmp6TE_mySRDgpt40oddhvsYM-Qs58Nvdt8QgS65lOgowiGA/viewform?embedded=true"
             width="100%"

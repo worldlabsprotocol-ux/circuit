@@ -203,23 +203,54 @@ export default function Studio() {
     }
   };
 
-  // Unlock audio on first interaction
+  // Audio unlock on first real interaction (improved for mobile/Seeker)
   useEffect(() => {
-    const unlock = async () => {
+    let unlocked = false;
+
+    const unlockAudio = async (e) => {
+      if (unlocked) return;
+      unlocked = true;
+
       try {
+        // Prevent default on touch events to ensure gesture is captured
+        if (e.type === 'touchstart') {
+          e.preventDefault();
+        }
+
+        // Start Tone.js context
         await Tone.start();
+
+        // Initialize engine if not already
         await initAudio();
+
+        // Hide overlay
         setShowAudioOverlay(false);
+
+        // Optional: Play a silent sound to "warm up" audio on Android
+        const silentOsc = new Tone.Oscillator(440, "sine").toDestination();
+        silentOsc.volume.value = -Infinity;
+        silentOsc.start("+0.01").stop("+0.05");
+
+        console.log("Audio unlocked successfully on mobile");
       } catch (err) {
-        console.warn("Unlock failed:", err);
+        console.error("Audio unlock failed:", err);
+        // Don't hide overlay on failure — let user try again
+        unlocked = false;
       }
     };
 
-    window.addEventListener("click", unlock, { once: true });
-    window.addEventListener("touchstart", unlock, { once: true });
+    // Add multiple gesture listeners for better mobile coverage
+    const events = ['click', 'touchstart', 'pointerdown', 'mousedown'];
+
+    events.forEach(event => {
+      window.addEventListener(event, unlockAudio, { passive: false });
+    });
+
+    // Cleanup
     return () => {
-      window.removeEventListener("click", unlock);
-      window.removeEventListener("touchstart", unlock);
+      events.forEach(event => {
+        window.removeEventListener(event, unlockAudio);
+      });
     };
   }, []);
 
@@ -529,20 +560,32 @@ export default function Studio() {
             textAlign: "center",
             padding: "40px",
             cursor: "pointer",
+            touchAction: "manipulation", // Improves touch response on mobile
           }}
-          onClick={async () => {
+          onClick={async (e) => {
+            e.preventDefault(); // Extra safety
             try {
               await Tone.start();
               await initAudio();
               setShowAudioOverlay(false);
             } catch (err) {
-              console.error("Unlock failed:", err);
+              console.error("Overlay unlock failed:", err);
+            }
+          }}
+          onTouchStart={async (e) => {
+            e.preventDefault(); // Critical for Android/Seeker
+            try {
+              await Tone.start();
+              await initAudio();
+              setShowAudioOverlay(false);
+            } catch (err) {
+              console.error("Touch unlock failed:", err);
             }
           }}
         >
           <div style={{ marginBottom: "30px" }}>TAP ANYWHERE TO ENABLE SOUND</div>
           <div style={{ fontSize: "24px", opacity: 0.8, maxWidth: "80%" }}>
-            Tap once to unlock audio (required on mobile/Android)
+            Tap once (or double-tap if needed) to unlock audio – required on Seeker/Android
           </div>
         </div>
       )}
