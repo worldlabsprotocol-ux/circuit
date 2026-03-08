@@ -35,6 +35,15 @@ export default function Studio() {
   const [playStep, setPlayStep] = useState(0);
   const [darkMode, setDarkMode] = useState(true);
 
+  // ✅ Added: responsive flag (replaces window.innerWidth checks in styles)
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 900);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 900);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   const [tracks, setTracks] = useState(
     Array.from({ length: 8 }, () => Array(16).fill(false))
   );
@@ -212,49 +221,33 @@ export default function Studio() {
       unlocked = true;
 
       try {
-        // Prevent default on touch events to ensure gesture is captured
-        if (e.type === 'touchstart') {
-          e.preventDefault();
-        }
+        if (e.type === "touchstart") e.preventDefault();
 
-        // Start Tone.js context
         await Tone.start();
-
-        // Initialize engine if not already
         await initAudio();
-
-        // Hide overlay
         setShowAudioOverlay(false);
 
-        // Optional: Play a silent sound to "warm up" audio on Android
         const silentOsc = new Tone.Oscillator(440, "sine").toDestination();
         silentOsc.volume.value = -Infinity;
         silentOsc.start("+0.01").stop("+0.05");
-
-        console.log("Audio unlocked successfully on mobile");
       } catch (err) {
         console.error("Audio unlock failed:", err);
-        // Don't hide overlay on failure — let user try again
         unlocked = false;
       }
     };
 
-    // Add multiple gesture listeners for better mobile coverage
-    const events = ['click', 'touchstart', 'pointerdown', 'mousedown'];
-
-    events.forEach(event => {
+    const events = ["click", "touchstart", "pointerdown", "mousedown"];
+    events.forEach((event) => {
       window.addEventListener(event, unlockAudio, { passive: false });
     });
 
-    // Cleanup
     return () => {
-      events.forEach(event => {
+      events.forEach((event) => {
         window.removeEventListener(event, unlockAudio);
       });
     };
   }, []);
 
-  // Fixed Tone.Transport sequencer - this replaces the old setInterval
   useEffect(() => {
     Tone.Transport.bpm.value = bpm;
   }, [bpm]);
@@ -348,7 +341,6 @@ export default function Studio() {
     }
   }
 
-  // Grid drag handling (unchanged from your code)
   const toggleStep = (trackIndex, stepIndex) => {
     setTracks((prev) => {
       const newTracks = prev.map((row, i) =>
@@ -386,7 +378,6 @@ export default function Studio() {
     setIsDrawing(false);
   };
 
-  // Sample preview
   const previewSample = (sampleName) => {
     const url = customSamples[sampleName] || sampleAudioUrls[sampleName];
     if (!url) return;
@@ -396,7 +387,6 @@ export default function Studio() {
     audio.play().catch((e) => console.log("Preview play error:", e));
   };
 
-  // Recording functions (unchanged)
   const handleToggleRecord = async () => {
     if (isRecording) {
       if (recorderRef.current) {
@@ -531,12 +521,15 @@ export default function Studio() {
     <div
       style={{
         position: "relative",
+        width: "100%",
+        height: "100%",
         display: "flex",
-        flexDirection: window.innerWidth < 900 ? "column" : "row",
-        padding: window.innerWidth < 900 ? 12 : 24,
+        flexDirection: isMobile ? "column" : "row",
+        padding: isMobile ? 12 : 24,
         gap: 16,
-        minHeight: "100dvh",
+        overflowX: "hidden",
         overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
         background: darkMode ? "#0b0f14" : "#f5f5f5",
         color: darkMode ? "#ffffff" : "#111111",
       }}
@@ -563,7 +556,7 @@ export default function Studio() {
             touchAction: "manipulation", // Improves touch response on mobile
           }}
           onClick={async (e) => {
-            e.preventDefault(); // Extra safety
+            e.preventDefault();
             try {
               await Tone.start();
               await initAudio();
@@ -573,7 +566,7 @@ export default function Studio() {
             }
           }}
           onTouchStart={async (e) => {
-            e.preventDefault(); // Critical for Android/Seeker
+            e.preventDefault();
             try {
               await Tone.start();
               await initAudio();
@@ -655,7 +648,7 @@ export default function Studio() {
       )}
 
       {/* LEFT SIDEBAR */}
-      <div style={{ width: window.innerWidth < 900 ? "100%" : 280, display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ width: isMobile ? "100%" : 280, display: "flex", flexDirection: "column", gap: 16 }}>
         <div style={{ border: "1px solid rgba(0,255,255,0.18)", borderRadius: 12, padding: 10, background: "rgba(0,255,255,0.03)", overflow: "hidden", height: 140 }}>
           <h3 style={{ color: "#00ffff", margin: "0 0 8px 0", fontSize: 15 }}>Trending</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -722,7 +715,8 @@ export default function Studio() {
           </div>
         )}
 
-        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20, padding: 12, borderRadius: 14, background: "rgba(0,255,255,0.04)", border: "1px solid rgba(0,255,255,0.15)" }}>
+        {/* ✅ Optional fix added: flexWrap on toolbar row so it doesn't overflow on mobile */}
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12, marginBottom: 20, padding: 12, borderRadius: 14, background: "rgba(0,255,255,0.04)", border: "1px solid rgba(0,255,255,0.15)" }}>
           <button
             onClick={async () => {
               try {

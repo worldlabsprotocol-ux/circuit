@@ -1,15 +1,63 @@
-@keyArdi3nt3!!
-rames waveMove {
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.5px;
+  background: radial-gradient(circle at center, #0a0f2a 0%, black 70%);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Animations */
+@keyframes waveMove {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
-body {
-  margin: 0;
-  font-family: system-ui;
-  background: radial-gradient(circle at center, #0a0f2a 0%, black 70%);
+@keyframes drive {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
+@keyframes padClick {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Typography */
+h1, h2, h3 {
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.section-title {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #00F0FF;
+}
+
+.subtle-text {
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+/* Transitions */
 .section-enter {
   opacity: 0;
   transform: translateY(10px);
@@ -21,134 +69,17 @@ body {
   transition: 200ms ease;
 }
 
-@keyframes padClick {
-  0% { transform: scale(1); opacity:0.8; }
-  50% { transform: scale(1.1); opacity:1; }
-  100% { transform: scale(1); opacity:1; }
-}
-
-.pad-active {
-  animation: padClick 0.15s ease;
-}
-
-@keyframes drive {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-@keyframes padClick {
-  0% { transform: scale(1); opacity:0.8; }
-  50% { transform: scale(1.1); opacity:1; }
-  100% { transform: scale(1); opacity:1; }
-}
-
-.pad-active {
-  animation: padClick 0.15s ease;
-}
-
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  letter-spacing: 0.5px;
-}
-
-h1, h2, h3 {
-  font-weight: 500;
-  letter-spacing: 1px;
-}
-
-.section-title {
-  font-size: 32px;
-  margin-bottom: 20px;
-  color: #00F0FF;
-}
-
-.subtle-text {
-  opacity: 0.7;
-  font-size: 14px;
-}
-
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  letter-spacing: 0.5px;
-}
-
-h1, h2, h3 {
-  font-weight: 500;
-  letter-spacing: 1px;
-}
-
-.section-title {
-  font-size: 32px;
-  margin-bottom: 20px;
-  color: #00F0FF;
-}
-
-.subtle-text {
-  opacity: 0.7;
-  font-size: 14px;
-}
-
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  letter-spacing: 0.5px;
-}
-
-h1,h2,h3 {
-  font-weight:500;
-  letter-spacing:1px;
-}
-
-@keyframes drive {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-@keyframes padClick {
-  0% { transform: scale(1); opacity:0.8; }
-  50% { transform: scale(1.1); opacity:1; }
-  100% { transform: scale(1); opacity:1; }
-}
-
-.pad-active {
-  animation: padClick 0.15s ease;
-}
-
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  letter-spacing: 0.5px;
-}
-
-h1,h2,h3 {
-  font-weight:500;
-  letter-spacing:1px;
-}
-
-@keyframes drive {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-@keyframes padClick {
-  0% { transform: scale(1); opacity:0.8; }
-  50% { transform: scale(1.1); opacity:1; }
-  100% { transform: scale(1); opacity:1; }
-}
-
-.pad-active {
-  animation: padClick 0.15s ease;
-}
-
 .pageFade {
   animation: fadeIn 0.6s ease forwards;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 .allocationBarAnimated div {
   transition: width 1s ease;
+}
+
+/* UI */
+.pad-active {
+  animation: padClick 0.15s ease;
 }
 
 .growthCurveAnimated {
@@ -171,7 +102,7 @@ h1,h2,h3 {
 .control-btn {
   background: rgba(0, 255, 255, 0.08);
   color: #00ffff;
-  border: 1px solid rgba(0,255,255,0.3);
+  border: 1px solid rgba(0, 255, 255, 0.3);
   padding: 8px 18px;
   border-radius: 999px;
   font-weight: 500;
@@ -183,13 +114,12 @@ h1,h2,h3 {
 }
 
 .control-btn:hover {
-  background: rgba(0,255,255,0.2);
-  box-shadow: 0 0 12px rgba(0,255,255,0.4);
+  background: rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.4);
   transform: translateY(-1px);
 }
 
 .control-btn:active {
   transform: translateY(0px);
-  box-shadow: 0 0 6px rgba(0,255,255,0.6);
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.6);
 }
-
