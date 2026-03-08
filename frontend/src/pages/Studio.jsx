@@ -7,7 +7,6 @@ import CommentSection from "../components/CommentSection";
 import RecordRTC from "recordrtc";
 import * as Tone from "tone";
 
-// Button style
 const controlBtn = {
   background: "rgba(0,255,255,0.10)",
   border: "1px solid rgba(0,255,255,0.35)",
@@ -17,9 +16,10 @@ const controlBtn = {
   color: "#00ffff",
   fontSize: 13,
   fontWeight: 600,
+  touchAction: "manipulation",
+  WebkitTapHighlightColor: "transparent",
 };
 
-// Real audio URLs for preview
 const sampleAudioUrls = {
   "Kick 808": "https://assets.codepen.io/605876/808-kick.mp3",
   "Snare Tight": "https://assets.codepen.io/605876/808-snare.mp3",
@@ -35,18 +35,14 @@ export default function Studio() {
   const [playStep, setPlayStep] = useState(0);
   const [darkMode, setDarkMode] = useState(true);
 
-  // ✅ Added: responsive flag (replaces window.innerWidth checks in styles)
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 900);
-
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 900);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const [tracks, setTracks] = useState(
-    Array.from({ length: 8 }, () => Array(16).fill(false))
-  );
+  const [tracks, setTracks] = useState(Array.from({ length: 8 }, () => Array(16).fill(false)));
 
   const [tracksMeta, setTracksMeta] = useState(
     Array.from({ length: 8 }, (_, i) => ({
@@ -63,15 +59,10 @@ export default function Studio() {
   const { connection } = useConnection();
 
   const [customSamples, setCustomSamples] = useState({});
-
   const anySoloOn = useMemo(() => tracksMeta.some((t) => t.solo), [tracksMeta]);
 
   const [selectedSample, setSelectedSample] = useState(null);
-  const [shareLink, setShareLink] = useState(null);
-  const [sessionId, setSessionId] = useState(null);
-  const [forkInfo, setForkInfo] = useState(null);
 
-  /* EFFECTS STATE */
   const [reverbWet, setReverbWet] = useState(0.3);
   const [delayWet, setDelayWet] = useState(0.2);
   const [reverbOn, setReverbOn] = useState(true);
@@ -84,41 +75,33 @@ export default function Studio() {
   const [distortionAmount, setDistortionAmount] = useState(0.2);
   const [masterGain, setMasterGain] = useState(1);
 
-  /* UNDO / REDO */
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
-  /* CHAT */
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMessage, setChatMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
 
-  /* RECORDING */
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [recordedBlob, setRecordedBlob] = useState(null);
   const [recordedUrl, setRecordedUrl] = useState(null);
   const [showRecordOverlay, setShowRecordOverlay] = useState(false);
   const [monitorBeat, setMonitorBeat] = useState(true);
+
   const recorderRef = useRef(null);
   const streamRef = useRef(null);
   const timerRef = useRef(null);
 
-  /* DRAWING */
   const [isDrawing, setIsDrawing] = useState(false);
 
-  /* SAVED SESSIONS & SOCIAL */
   const [sessions, setSessions] = useState(() => {
     const saved = localStorage.getItem("circuit_sessions");
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [likesMap, setLikesMap] = useState({});
-  const [followingMap, setFollowingMap] = useState({});
-  const [selectedCreator, setSelectedCreator] = useState(null);
-
-  /* AUDIO OVERLAY */
   const [showAudioOverlay, setShowAudioOverlay] = useState(true);
+  const [micReady, setMicReady] = useState(false);
 
   const audioEngine = useRef(null);
   const transportIdRef = useRef(null);
@@ -129,42 +112,29 @@ export default function Studio() {
   const anySoloOnRef = useRef(anySoloOn);
   const metronomeOnRef = useRef(metronomeOn);
 
-  useEffect(() => { tracksRef.current = tracks; }, [tracks]);
-  useEffect(() => { tracksMetaRef.current = tracksMeta; }, [tracksMeta]);
-  useEffect(() => { anySoloOnRef.current = anySoloOn; }, [anySoloOn]);
-  useEffect(() => { metronomeOnRef.current = metronomeOn; }, [metronomeOn]);
-
-  // Trending ticker
-  const trendingItems = [
-    { id: 1, name: "Neon Pulse", creator: "circuit.skr", likes: 124 },
-    { id: 2, name: "808 Galaxy", creator: "pabloretroworld.skr", likes: 98 },
-    { id: 3, name: "Solar Bounce", creator: "stardrummer.skr", likes: 76 },
-    { id: 4, name: "Midnight Drift", creator: "voidproducer.skr", likes: 142 },
-    { id: 5, name: "Chrome Dreams", creator: "futurevibes.skr", likes: 117 },
-    { id: 6, name: "Bass Reactor", creator: "lowfreqlord.skr", likes: 89 },
-    { id: 7, name: "Digital Mirage", creator: "hologramkid.skr", likes: 134 },
-    { id: 8, name: "Skyline Bounce", creator: "aerobeats.skr", likes: 73 },
-    { id: 9, name: "Trap Nebula", creator: "cosmic808.skr", likes: 156 },
-    { id: 10, name: "Velocity Loop", creator: "tempoengine.skr", likes: 101 },
-    { id: 11, name: "Aurora 140", creator: "nightshift.skr", likes: 92 },
-    { id: 12, name: "Static Horizon", creator: "glitchmode.skr", likes: 128 },
-  ].map((item) => ({
-    ...item,
-    likes: item.likes + Math.floor(Math.random() * 3),
-  }));
-
-  const [tickerIndex, setTickerIndex] = useState(0);
-
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTickerIndex((prev) => (prev + 1) % trendingItems.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+    tracksRef.current = tracks;
+  }, [tracks]);
+  useEffect(() => {
+    tracksMetaRef.current = tracksMeta;
+  }, [tracksMeta]);
+  useEffect(() => {
+    anySoloOnRef.current = anySoloOn;
+  }, [anySoloOn]);
+  useEffect(() => {
+    metronomeOnRef.current = metronomeOn;
+  }, [metronomeOn]);
 
-  const visibleTrending = Array.from({ length: 5 }, (_, i) => {
-    const idx = (tickerIndex + i) % trendingItems.length;
-    return trendingItems[idx];
+  // ✅ Seeker-safe tap helper: touchstart + click, no preventDefault globally
+  const tap = (fn) => ({
+    onClick: (e) => {
+      e.stopPropagation();
+      fn(e);
+    },
+    onTouchStart: (e) => {
+      e.stopPropagation();
+      fn(e);
+    },
   });
 
   const initAudio = async () => {
@@ -212,17 +182,40 @@ export default function Studio() {
     }
   };
 
-  // Audio unlock on first real interaction (improved for mobile/Seeker)
+  const ensureMicPermission = async () => {
+    try {
+      if (streamRef.current && streamRef.current.getTracks?.().some((t) => t.readyState === "live")) {
+        setMicReady(true);
+        return streamRef.current;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+
+      streamRef.current = stream;
+      setMicReady(true);
+      return stream;
+    } catch (err) {
+      setMicReady(false);
+      console.error("Mic permission failed:", err);
+      throw err;
+    }
+  };
+
+  // ✅ Audio unlock on any interaction, NO preventDefault
   useEffect(() => {
     let unlocked = false;
 
-    const unlockAudio = async (e) => {
+    const unlockAudio = async () => {
       if (unlocked) return;
       unlocked = true;
 
       try {
-        if (e.type === "touchstart") e.preventDefault();
-
         await Tone.start();
         await initAudio();
         setShowAudioOverlay(false);
@@ -237,14 +230,10 @@ export default function Studio() {
     };
 
     const events = ["click", "touchstart", "pointerdown", "mousedown"];
-    events.forEach((event) => {
-      window.addEventListener(event, unlockAudio, { passive: false });
-    });
+    events.forEach((event) => window.addEventListener(event, unlockAudio, { passive: true }));
 
     return () => {
-      events.forEach((event) => {
-        window.removeEventListener(event, unlockAudio);
-      });
+      events.forEach((event) => window.removeEventListener(event, unlockAudio));
     };
   }, []);
 
@@ -324,7 +313,6 @@ export default function Studio() {
 
     const meta = tracksMetaRef.current?.[trackIndex];
     if (!meta) return;
-
     if (meta.mute || (anySoloOnRef.current && !meta.solo)) return;
 
     const inst = audioEngine.current.instruments?.[trackIndex];
@@ -344,9 +332,7 @@ export default function Studio() {
   const toggleStep = (trackIndex, stepIndex) => {
     setTracks((prev) => {
       const newTracks = prev.map((row, i) =>
-        i === trackIndex
-          ? row.map((cell, j) => (j === stepIndex ? !cell : cell))
-          : row
+        i === trackIndex ? row.map((cell, j) => (j === stepIndex ? !cell : cell)) : row
       );
 
       setHistory((prevHistory) => {
@@ -359,6 +345,7 @@ export default function Studio() {
     });
   };
 
+  // ✅ Only preventDefault while drawing on grid
   const handlePointerDown = (trackIndex, stepIndex, e) => {
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -371,7 +358,7 @@ export default function Studio() {
   };
 
   const handlePointerUp = (e) => {
-    e.preventDefault();
+    if (isDrawing) e.preventDefault();
     if (e.currentTarget?.hasPointerCapture?.(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
@@ -402,14 +389,18 @@ export default function Studio() {
       }
     } else {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        streamRef.current = stream;
+        if (Tone.context.state !== "running") await Tone.start();
+        await initAudio();
+
+        const stream = await ensureMicPermission();
+
         const recorder = new RecordRTC(stream, {
           type: "audio",
           mimeType: "audio/webm",
           recorderType: RecordRTC.StereoAudioRecorder,
           timeSlice: 1000,
         });
+
         recorderRef.current = recorder;
         recorder.startRecording();
         setIsRecording(true);
@@ -427,9 +418,12 @@ export default function Studio() {
     setRecordedBlob(null);
     setRecordedUrl(null);
     setRecordingTime(0);
+
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
     }
+    setMicReady(false);
   };
 
   const handleChopAndAdd = () => {
@@ -454,20 +448,17 @@ export default function Studio() {
       if (!audioEngine.current) await initAudio();
 
       const random = Array.from({ length: 8 }, () =>
-        Array(16).fill(false).map(() => Math.random() > 0.72)
+        Array(16)
+          .fill(false)
+          .map(() => Math.random() > 0.72)
       );
       setTracks(random);
     } catch (e) {
       console.error("Remix failed:", e);
-      const random = Array.from({ length: 8 }, () =>
-        Array(16).fill(false).map(() => Math.random() > 0.72)
-      );
-      setTracks(random);
     }
   };
 
-  const onClear = () =>
-    setTracks(Array.from({ length: 8 }, () => Array(16).fill(false)));
+  const onClear = () => setTracks(Array.from({ length: 8 }, () => Array(16).fill(false)));
 
   const onSave = () => {
     if (!connected || !publicKey) {
@@ -496,27 +487,6 @@ export default function Studio() {
     alert("Preview Export: Recording feature allows capturing your loop for now.");
   };
 
-  const onMintPreview = () => {
-    if (!connected) {
-      alert("Connect wallet to mint.");
-      return;
-    }
-
-    const metadata = {
-      name: `Circuit Beat #${Date.now() % 100000}`,
-      symbol: "CIRCUIT",
-      description: "Created on Circuit - Web3 Mobile Beat Lab",
-      attributes: [
-        { trait_type: "BPM", value: bpm },
-        { trait_type: "Tracks", value: tracks.length },
-        { trait_type: "Creator", value: publicKey?.toString() },
-      ],
-    };
-
-    console.log("Mint Preview Metadata:", metadata);
-    alert("NFT metadata generated. Check console.");
-  };
-
   return (
     <div
       style={{
@@ -532,9 +502,10 @@ export default function Studio() {
         WebkitOverflowScrolling: "touch",
         background: darkMode ? "#0b0f14" : "#f5f5f5",
         color: darkMode ? "#ffffff" : "#111111",
+        touchAction: "pan-y",
       }}
-      onMouseUp={handlePointerUp}
-      onTouchEnd={handlePointerUp}
+      onPointerUp={() => setIsDrawing(false)}
+      onPointerCancel={() => setIsDrawing(false)}
     >
       {showAudioOverlay && (
         <div
@@ -553,37 +524,32 @@ export default function Studio() {
             textAlign: "center",
             padding: "40px",
             cursor: "pointer",
-            touchAction: "manipulation", // Improves touch response on mobile
+            touchAction: "manipulation",
+            WebkitTapHighlightColor: "transparent",
           }}
-          onClick={async (e) => {
-            e.preventDefault();
+          {...tap(async () => {
             try {
               await Tone.start();
               await initAudio();
+              try {
+                await ensureMicPermission();
+              } catch (e) {}
               setShowAudioOverlay(false);
             } catch (err) {
               console.error("Overlay unlock failed:", err);
             }
-          }}
-          onTouchStart={async (e) => {
-            e.preventDefault();
-            try {
-              await Tone.start();
-              await initAudio();
-              setShowAudioOverlay(false);
-            } catch (err) {
-              console.error("Touch unlock failed:", err);
-            }
-          }}
+          })}
         >
           <div style={{ marginBottom: "30px" }}>TAP ANYWHERE TO ENABLE SOUND</div>
           <div style={{ fontSize: "24px", opacity: 0.8, maxWidth: "80%" }}>
-            Tap once (or double-tap if needed) to unlock audio – required on Seeker/Android
+            Tap once to unlock audio. Rec will request mic permission.
+          </div>
+          <div style={{ fontSize: "14px", opacity: 0.75, marginTop: 16 }}>
+            Mic: {micReady ? "ready" : "not granted yet"}
           </div>
         </div>
       )}
 
-      {/* RECORDING OVERLAY */}
       {isRecording && (
         <div
           style={{
@@ -598,22 +564,17 @@ export default function Studio() {
             justifyContent: "center",
           }}
         >
-          <div style={{ fontSize: 48, marginBottom: 20, animation: "pulse 1.5s infinite" }}>
-            RECORDING...
-          </div>
+          <div style={{ fontSize: 48, marginBottom: 20 }}>RECORDING...</div>
           <div style={{ fontSize: 24, marginBottom: 30 }}>
             {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, "0")}
           </div>
-          <div style={{ width: 200, height: 8, background: "rgba(0,255,255,0.2)", borderRadius: 4, overflow: "hidden", marginBottom: 40 }}>
-            <div style={{ width: "60%", height: "100%", background: "#ff4444", borderRadius: 4 }} />
-          </div>
           <div style={{ display: "flex", gap: 20 }}>
-            <button style={controlBtn} onClick={() => setMonitorBeat((p) => !p)}>
+            <button style={controlBtn} {...tap(() => setMonitorBeat((p) => !p))}>
               Monitor Beat: {monitorBeat ? "ON" : "OFF"}
             </button>
             <button
               style={{ ...controlBtn, background: "rgba(255,0,0,0.4)", borderColor: "#ff4444" }}
-              onClick={handleToggleRecord}
+              {...tap(handleToggleRecord)}
             >
               STOP
             </button>
@@ -621,7 +582,6 @@ export default function Studio() {
         </div>
       )}
 
-      {/* POST-RECORDING OVERLAY */}
       {showRecordOverlay && recordedUrl && (
         <div
           style={{
@@ -640,39 +600,29 @@ export default function Studio() {
           <h2 style={{ marginBottom: 20 }}>Recording Complete</h2>
           <audio controls src={recordedUrl} style={{ marginBottom: 30, width: "80%", maxWidth: 400 }} />
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
-            <button style={controlBtn} onClick={handleKeepFull}>Keep Full</button>
-            <button style={controlBtn} onClick={handleChopAndAdd}>Chop & Add</button>
-            <button style={{ ...controlBtn, background: "rgba(100,100,100,0.4)" }} onClick={cleanupAfterRecord}>Discard</button>
+            <button style={controlBtn} {...tap(handleKeepFull)}>Keep Full</button>
+            <button style={controlBtn} {...tap(handleChopAndAdd)}>Chop & Add</button>
+            <button style={{ ...controlBtn, background: "rgba(100,100,100,0.4)" }} {...tap(cleanupAfterRecord)}>
+              Discard
+            </button>
           </div>
         </div>
       )}
 
-      {/* LEFT SIDEBAR */}
       <div style={{ width: isMobile ? "100%" : 280, display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={{ border: "1px solid rgba(0,255,255,0.18)", borderRadius: 12, padding: 10, background: "rgba(0,255,255,0.03)", overflow: "hidden", height: 140 }}>
-          <h3 style={{ color: "#00ffff", margin: "0 0 8px 0", fontSize: 15 }}>Trending</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {visibleTrending.map((track) => (
-              <div key={track.id} style={{ padding: "4px 0", fontSize: 13, borderBottom: "1px solid rgba(0,255,255,0.08)" }}>
-                <div style={{ color: "#00ffff", fontWeight: 600 }}>{track.name}</div>
-                <div style={{ fontSize: 11, opacity: 0.75 }}>{track.creator} · ❤️ {track.likes}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
+      
         <div style={{ border: "1px solid rgba(0,255,255,0.15)", borderRadius: 14, padding: 16, background: "rgba(0,255,255,0.04)" }}>
           <h3 style={{ color: "#00ffff", marginBottom: 12 }}>Samples</h3>
           {["Kick 808", "Snare Tight", "HiHat Trap", "Sub Bass", "Pluck Melody", ...Object.keys(customSamples)].map((sample) => (
             <div
               key={sample}
-              onClick={() => {
+              {...tap(() => {
                 setSelectedSample(sample);
                 const updated = [...tracksMeta];
                 updated[0].assignedSample = sample;
                 setTracksMeta(updated);
                 previewSample(sample);
-              }}
+              })}
               style={{
                 padding: "8px 10px",
                 marginBottom: 8,
@@ -682,6 +632,8 @@ export default function Studio() {
                 border: "1px solid rgba(0,255,255,0.25)",
                 transition: "all 0.15s ease",
                 fontSize: 13,
+                touchAction: "manipulation",
+                WebkitTapHighlightColor: "transparent",
               }}
             >
               {sample}
@@ -707,18 +659,10 @@ export default function Studio() {
         </div>
       </div>
 
-      {/* CENTER */}
-      <div style={{ flex: 1 }}>
-        {connected && publicKey && (
-          <div style={{ fontSize: 11, color: "#00ffff", opacity: 0.7, marginTop: 6 }}>
-            🟢 Wallet Active {publicKey.toString().slice(0, 4)}…{publicKey.toString().slice(-4)}
-          </div>
-        )}
-
-        {/* ✅ Optional fix added: flexWrap on toolbar row so it doesn't overflow on mobile */}
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12, marginBottom: 20, padding: 12, borderRadius: 14, background: "rgba(0,255,255,0.04)", border: "1px solid rgba(0,255,255,0.15)" }}>
+      <div style={{ flex: 1, paddingRight: isMobile ? 8 : 12, paddingBottom: isMobile ? 16 : 20 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12, marginBottom: 12, padding: 12, borderRadius: 14, background: "rgba(0,255,255,0.04)", border: "1px solid rgba(0,255,255,0.15)" }}>
           <button
-            onClick={async () => {
+            {...tap(async () => {
               try {
                 await Tone.start();
                 await initAudio();
@@ -726,7 +670,7 @@ export default function Studio() {
               } catch (err) {
                 console.error("[PLAY] Error:", err);
               }
-            }}
+            })}
             style={{
               padding: "10px 18px",
               borderRadius: 10,
@@ -735,15 +679,15 @@ export default function Studio() {
               background: isPlaying ? "rgba(0,255,255,0.3)" : "transparent",
               color: "#00ffff",
               cursor: "pointer",
-              boxShadow: isPlaying ? "0 0 15px rgba(0,255,255,0.5)" : "none",
-              transition: "all 0.2s ease",
+              touchAction: "manipulation",
+              WebkitTapHighlightColor: "transparent",
             }}
           >
             {isPlaying ? "■ Stop" : "▶ Play"}
           </button>
 
           <button
-            onClick={() => setMetronomeOn((p) => !p)}
+            {...tap(() => setMetronomeOn((p) => !p))}
             style={{
               padding: "8px 14px",
               borderRadius: 8,
@@ -752,13 +696,15 @@ export default function Studio() {
               color: "#00ffff",
               cursor: "pointer",
               fontSize: 12,
+              touchAction: "manipulation",
+              WebkitTapHighlightColor: "transparent",
             }}
           >
             {metronomeOn ? "● Metronome" : "Metronome"}
           </button>
 
           <button
-            onClick={handleToggleRecord}
+            {...tap(handleToggleRecord)}
             style={{
               padding: "8px 14px",
               borderRadius: 8,
@@ -767,129 +713,44 @@ export default function Studio() {
               color: isRecording ? "#ff4444" : "#ff6666",
               cursor: "pointer",
               fontSize: 12,
+              touchAction: "manipulation",
+              WebkitTapHighlightColor: "transparent",
             }}
           >
             {isRecording ? "■ Rec" : "○ Rec"}
           </button>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ color: "#00ffff", fontSize: 13 }}>BPM</span>
-            <input
-              type="number"
-              value={bpm}
-              min="60"
-              max="200"
-              onChange={(e) => setBpm(+e.target.value)}
-              style={{
-                width: 60,
-                padding: 4,
-                background: "rgba(0,0,0,0.5)",
-                border: "1px solid rgba(0,255,255,0.4)",
-                color: "#00ffff",
-                borderRadius: 6,
-              }}
-            />
-            <input type="range" min="60" max="200" value={bpm} onChange={(e) => setBpm(+e.target.value)} style={{ width: 120 }} />
-          </div>
-
-          <div style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
+          <div style={{ display: "flex", gap: 8, marginLeft: "auto", flexWrap: "wrap" }}>
             <WalletMultiButton />
-            {connected && (
-              <div
-                style={{
-                  padding: "6px 10px",
-                  borderRadius: 8,
-                  fontSize: 11,
-                  fontWeight: 600,
-                  background: "rgba(0,255,255,0.12)",
-                  border: "1px solid rgba(0,255,255,0.35)",
-                  color: "#00ffff",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-              >
-                ● Wallet Active
-              </div>
-            )}
-            <button style={controlBtn} onClick={onRemix}>Remix</button>
-            <button style={controlBtn} onClick={onClear}>Clear</button>
-            <button style={controlBtn} onClick={onSave}>Save</button>
-            <button style={controlBtn} onClick={onExport}>Export</button>
-            {connected && <button style={controlBtn} onClick={onMintPreview}>Mint as NFT</button>}
-          </div>
-        </div>
-
-        {/* Grid */}
-        {tracks.map((track, trackIndex) => {
-          const meta = tracksMeta[trackIndex];
-          return (
-            <div key={trackIndex} style={{ display: "flex", alignItems: "center", marginTop: 10, padding: 6, borderRadius: 10, background: meta.solo ? "rgba(0,255,255,0.08)" : "transparent", transition: "all 0.2s ease" }}>
-              <div style={{ width: 110, marginRight: 8, fontSize: 10, opacity: 0.9 }}>
-                <div style={{ marginBottom: 4, color: meta.solo ? "#00ffff" : "white", fontWeight: meta.solo ? 700 : 400 }}>{meta.name}</div>
-                <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
-                  <button onClick={() => { const u = [...tracksMeta]; u[trackIndex].mute = !meta.mute; setTracksMeta(u); }} style={{ flex: 1, fontSize: 10, fontWeight: 700, padding: "4px 0", borderRadius: 6, border: "1px solid rgba(0,255,255,0.5)", background: meta.mute ? "#ff3b3b" : "rgba(0,255,255,0.08)", color: meta.mute ? "#fff" : "#00ffff", cursor: "pointer" }}>M</button>
-                  <button onClick={() => { const u = [...tracksMeta]; u[trackIndex].solo = !meta.solo; setTracksMeta(u); }} style={{ flex: 1, fontSize: 10, fontWeight: 700, padding: "4px 0", borderRadius: 6, border: "1px solid rgba(0,255,255,0.5)", background: meta.solo ? "#00ffff" : "rgba(0,255,255,0.08)", color: meta.solo ? "#000" : "#00ffff", cursor: "pointer" }}>S</button>
-                </div>
-                <input type="range" min="0" max="1" step="0.01" value={meta.volume} onChange={(e) => { const u = [...tracksMeta]; u[trackIndex].volume = +e.target.value; setTracksMeta(u); }} style={{ width: "100%", marginBottom: 4 }} />
-                <input type="range" min="-1" max="1" step="0.01" value={meta.pan} onChange={(e) => { const u = [...tracksMeta]; u[trackIndex].pan = +e.target.value; setTracksMeta(u); }} style={{ width: "100%" }} />
-              </div>
-
-              <div style={{ display: "flex", gap: 4, flex: 1 }}>
-                {track.map((step, stepIndex) => (
-                  <div
-                    key={stepIndex}
-                    onPointerDown={(e) => handlePointerDown(trackIndex, stepIndex, e)}
-                    onPointerEnter={() => handlePointerEnter(trackIndex, stepIndex)}
-                    onPointerUp={handlePointerUp}
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 8,
-                      background: step ? "#00ffff" : "rgba(255,255,255,0.08)",
-                      border: isPlaying && playStep === stepIndex ? "2px solid #ffffff" : "1px solid rgba(0,255,255,0.2)",
-                      boxShadow: step ? "0 0 12px rgba(0,255,255,0.6)" : "none",
-                      transition: "all 0.08s ease",
-                      cursor: "pointer",
-                      touchAction: "none",
-                      userSelect: "none",
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Comments */}
-        <div style={{ marginTop: 20, padding: 16, border: "1px solid rgba(0,255,255,0.15)", borderRadius: 14, background: "rgba(0,255,255,0.04)" }}>
-          <h3 style={{ color: "#00ffff", marginBottom: 12 }}>Comments</h3>
-          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-            <input type="text" placeholder="Leave feedback..." style={{ flex: 1, padding: 10, background: "rgba(255,255,255,0.08)", border: "1px solid #00ffff", borderRadius: 8, color: "white" }} />
             <button
-              style={{ ...controlBtn, background: "rgba(0,180,255,0.2)", borderColor: "#00aaff" }}
-              onClick={() => {
-                const commentText = "Check out this beat I made on Circuit! #Web3Music #MusicProd";
-                const url = `https://x.com/intent/tweet?text=${encodeURIComponent(commentText)}&url=${encodeURIComponent("https://circuit.skr")}`;
-                window.open(url, "_blank");
+              style={{
+                ...controlBtn,
+                background: chatOpen ? "rgba(0,255,255,0.22)" : "rgba(0,255,255,0.10)",
+                borderColor: "rgba(0,255,255,0.45)",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
               }}
+              {...tap(() => setChatOpen((p) => !p))}
             >
-              Post to X
+              🧑‍🚀 Assistant
             </button>
+
+            <button style={controlBtn} {...tap(onRemix)}>Remix</button>
+            <button style={controlBtn} {...tap(onClear)}>Clear</button>
+            <button style={controlBtn} {...tap(onSave)}>Save</button>
+            <button style={controlBtn} {...tap(onExport)}>Export</button>
           </div>
         </div>
-      </div>
-
-      {/* Floating chat button */}
-      <div style={{ position: "fixed", bottom: 80, right: 24, zIndex: 1000 }}>
-        <button onClick={() => setChatOpen(!chatOpen)} style={{ width: 64, height: 64, borderRadius: "50%", background: "#00ffff", border: "3px solid #00ccff", cursor: "pointer", boxShadow: "0 0 25px cyan", fontSize: 32, display: "flex", alignItems: "center", justifyContent: "center" }}>🧑‍🚀</button>
 
         {chatOpen && (
-          <div style={{ position: "absolute", bottom: 80, right: 0, width: 340, background: "rgba(0,0,0,0.92)", border: "2px solid #00ffff", borderRadius: 16, padding: 20, color: "#00ffff", boxShadow: "0 0 40px rgba(0,255,255,0.5)" }}>
-            <h3>Circuit Assistant</h3>
-            <p style={{ fontSize: 14, opacity: 0.9, marginBottom: 16 }}>Hi! Ask me anything about Circuit.</p>
+          <div style={{ marginBottom: 16, width: "100%", background: "rgba(0,0,0,0.92)", border: "2px solid #00ffff", borderRadius: 16, padding: 16, color: "#00ffff", boxShadow: "0 0 40px rgba(0,255,255,0.35)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <h3 style={{ margin: 0 }}>Circuit Assistant</h3>
+              <button style={controlBtn} {...tap(() => setChatOpen(false))}>Close</button>
+            </div>
 
-            <div style={{ maxHeight: 200, overflowY: "auto", marginBottom: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ maxHeight: 200, overflowY: "auto", marginBottom: 12, display: "flex", flexDirection: "column", gap: 8 }}>
               {chatHistory.map((msg, i) => (
                 <div key={i} style={{ alignSelf: msg.role === "user" ? "flex-end" : "flex-start", background: msg.role === "user" ? "rgba(0,255,255,0.2)" : "rgba(255,255,255,0.08)", padding: "8px 12px", borderRadius: 10, maxWidth: "80%", fontSize: 13 }}>
                   {msg.text}
@@ -897,16 +758,82 @@ export default function Studio() {
               ))}
             </div>
 
-            <input type="text" value={chatMessage} onChange={(e) => setChatMessage(e.target.value)} placeholder="Type your question..." style={{ width: "100%", padding: 10, background: "rgba(255,255,255,0.08)", border: "1px solid #00ffff", borderRadius: 8, color: "white", marginBottom: 12 }} />
-
-            <button style={controlBtn} onClick={() => {
-              if (!chatMessage.trim()) return;
-              const reply = "Tell me what you're trying to do and what happened, and I’ll guide you step by step.";
-              setChatHistory((prev) => [...prev, { role: "user", text: chatMessage }, { role: "bot", text: reply }]);
-              setChatMessage("");
-            }}>Send</button>
+            <div style={{ display: "flex", gap: 10 }}>
+              <input
+                type="text"
+                value={chatMessage}
+                onChange={(e) => setChatMessage(e.target.value)}
+                placeholder="Type your question..."
+                style={{ flex: 1, padding: 10, background: "rgba(255,255,255,0.08)", border: "1px solid #00ffff", borderRadius: 8, color: "white" }}
+              />
+              <button
+                style={controlBtn}
+                {...tap(() => {
+                  if (!chatMessage.trim()) return;
+                  const reply = "Tell me what you're trying to do and what happened, and I’ll guide you step by step.";
+                  setChatHistory((prev) => [...prev, { role: "user", text: chatMessage }, { role: "bot", text: reply }]);
+                  setChatMessage("");
+                })}
+              >
+                Send
+              </button>
+            </div>
           </div>
         )}
+
+        <div style={{ paddingRight: isMobile ? 10 : 14, paddingBottom: isMobile ? 18 : 24 }}>
+          {tracks.map((track, trackIndex) => {
+            const meta = tracksMeta[trackIndex];
+            return (
+              <div key={trackIndex} style={{ display: "flex", alignItems: "center", marginTop: 10, padding: 6, borderRadius: 10, background: meta.solo ? "rgba(0,255,255,0.08)" : "transparent" }}>
+                <div style={{ width: 110, marginRight: 8, fontSize: 10, opacity: 0.9 }}>
+                  <div style={{ marginBottom: 4, color: meta.solo ? "#00ffff" : "white", fontWeight: meta.solo ? 700 : 400 }}>
+                    {meta.name}
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: 4, flex: 1, paddingRight: isMobile ? 10 : 14 }}>
+                  {track.map((step, stepIndex) => (
+                    <div
+                      key={stepIndex}
+                      onPointerDown={(e) => handlePointerDown(trackIndex, stepIndex, e)}
+                      onPointerEnter={() => handlePointerEnter(trackIndex, stepIndex)}
+                      onPointerUp={handlePointerUp}
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 8,
+                        background: step ? "#00ffff" : "rgba(255,255,255,0.08)",
+                        border: isPlaying && playStep === stepIndex ? "2px solid #ffffff" : "1px solid rgba(0,255,255,0.2)",
+                        boxShadow: step ? "0 0 12px rgba(0,255,255,0.6)" : "none",
+                        cursor: "pointer",
+                        touchAction: "none",
+                        userSelect: "none",
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ marginTop: 20, padding: 16, border: "1px solid rgba(0,255,255,0.15)", borderRadius: 14, background: "rgba(0,255,255,0.04)" }}>
+          <h3 style={{ color: "#00ffff", marginBottom: 12 }}>Comments</h3>
+          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+            <input type="text" placeholder="Leave feedback..." style={{ flex: 1, padding: 10, background: "rgba(255,255,255,0.08)", border: "1px solid #00ffff", borderRadius: 8, color: "white" }} />
+            <button
+              style={{ ...controlBtn, background: "rgba(0,180,255,0.2)", borderColor: "#00aaff" }}
+              {...tap(() => {
+                const commentText = "Check out this beat I made on Circuit! #Web3Music #MusicProd";
+                const url = `https://x.com/intent/tweet?text=${encodeURIComponent(commentText)}&url=${encodeURIComponent("https://circuit.skr")}`;
+                window.open(url, "_blank");
+              })}
+            >
+              Post to X
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
