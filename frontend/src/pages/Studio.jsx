@@ -35,7 +35,6 @@ export default function Studio() {
   const [playStep, setPlayStep] = useState(0);
   const [darkMode, setDarkMode] = useState(true);
 
-  // SAFE ADD: wallet injection check (prevents WalletNotReadyError / phantom.com behavior)
   const hasInjectedSolana =
     typeof window !== "undefined" &&
     (window.solana?.isPhantom ||
@@ -43,7 +42,6 @@ export default function Studio() {
       window.phantom?.solana ||
       window.backpack);
 
-  // SAFE ADD: lightweight in-app toast instead of blocking alerts
   const [toast, setToast] = useState(null);
   const toastTimerRef = useRef(null);
 
@@ -59,11 +57,12 @@ export default function Studio() {
     };
   }, []);
 
-  // Replace alert popups with a toast
   const comingSoon = (feature = "This feature") =>
     showToast(`${feature} coming soon`, "soon");
 
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 900);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth < 900 : false
+  );
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 900);
     window.addEventListener("resize", onResize);
@@ -112,7 +111,6 @@ export default function Studio() {
   const [chatMessage, setChatMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
 
-  // SAFE ADD: Deep assistant Q and A (local, no API)
   const CIRCUIT_ASSISTANT_FAQ = [
     {
       q: "What is Circuit",
@@ -130,10 +128,7 @@ export default function Studio() {
       q: "What exactly gets minted",
       a: "Typically your finished beat and its metadata, like title, cover, and creator info. The exact content depends on the mint settings.",
     },
-    {
-      q: "Can I mint later",
-      a: "Yes, you can create first and mint when you are ready.",
-    },
+    { q: "Can I mint later", a: "Yes, you can create first and mint when you are ready." },
     {
       q: "Can I edit a beat after minting",
       a: "You can always make a new version, but the minted version stays as it was when minted.",
@@ -146,54 +141,27 @@ export default function Studio() {
       q: "Do I need permission to remix",
       a: "It depends on the beat’s remix settings. If remix is enabled, you can remix. If not, you cannot.",
     },
-    {
-      q: "How do splits work",
-      a: "Splits define how earnings are divided between collaborators and remix contributors.",
-    },
+    { q: "How do splits work", a: "Splits define how earnings are divided between collaborators and remix contributors." },
     {
       q: "What does pending royalties mean",
       a: "It means earnings are tracked but not claimable yet, usually waiting on settlement or wallet actions.",
     },
-    {
-      q: "What does claimed mean",
-      a: "It means the payout was processed to the connected wallet.",
-    },
+    { q: "What does claimed mean", a: "It means the payout was processed to the connected wallet." },
     {
       q: "Why do I not see royalties yet",
       a: "Royalties only show when your minted or split-enabled content generates earnings, and the feature may still be rolling out.",
     },
-    {
-      q: "My audio has no sound",
-      a: "Check volume, track mute, device silent mode, and headphones or Bluetooth, then restart the app.",
-    },
+    { q: "My audio has no sound", a: "Check volume, track mute, device silent mode, and headphones or Bluetooth, then restart the app." },
     {
       q: "I hear a delay when I play",
       a: "Turn on low latency mode if available, close other apps, use wired headphones, and lower CPU heavy effects.",
     },
-    {
-      q: "How do I export my beat",
-      a: "Open the project menu, choose Export, then select format and quality, then save or share.",
-    },
-    {
-      q: "What file types can I export",
-      a: "Most workflows use WAV or MP3. If your app supports stems, you can export tracks separately.",
-    },
-    {
-      q: "Can I import my own samples",
-      a: "Yes, if sample import is enabled, add them through the sample browser or import menu.",
-    },
-    {
-      q: "My project is not saving",
-      a: "Make sure storage permission is enabled, you have free space, and your app is updated.",
-    },
-    {
-      q: "I cannot connect my wallet",
-      a: "Make sure you approved the connection in your wallet app, then retry, and confirm you are on the right network.",
-    },
-    {
-      q: "Can you recover my seed phrase",
-      a: "No, nobody can recover it safely. I can help you secure your wallet and avoid scams.",
-    },
+    { q: "How do I export my beat", a: "Open the project menu, choose Export, then select format and quality, then save or share." },
+    { q: "What file types can I export", a: "Most workflows use WAV or MP3. If your app supports stems, you can export tracks separately." },
+    { q: "Can I import my own samples", a: "Yes, if sample import is enabled, add them through the sample browser or import menu." },
+    { q: "My project is not saving", a: "Make sure storage permission is enabled, you have free space, and your app is updated." },
+    { q: "I cannot connect my wallet", a: "Make sure you approved the connection in your wallet app, then retry, and confirm you are on the right network." },
+    { q: "Can you recover my seed phrase", a: "No, nobody can recover it safely. I can help you secure your wallet and avoid scams." },
   ];
 
   const normalizeAssistantText = (s) =>
@@ -241,7 +209,7 @@ export default function Studio() {
   const [isDrawing, setIsDrawing] = useState(false);
 
   const [sessions, setSessions] = useState(() => {
-    const saved = localStorage.getItem("circuit_sessions");
+    const saved = typeof window !== "undefined" ? localStorage.getItem("circuit_sessions") : null;
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -249,6 +217,7 @@ export default function Studio() {
   const [micReady, setMicReady] = useState(false);
 
   const audioEngine = useRef(null);
+  const initAudioPromiseRef = useRef(null); // SAFE ADD: serialize initAudio to prevent double routing
   const transportIdRef = useRef(null);
   const stepRef = useRef(0);
 
@@ -270,7 +239,6 @@ export default function Studio() {
     metronomeOnRef.current = metronomeOn;
   }, [metronomeOn]);
 
-  // Seeker-safe tap helper: touchstart + click, no preventDefault globally
   const tap = (fn) => ({
     onClick: (e) => {
       e.stopPropagation();
@@ -284,52 +252,64 @@ export default function Studio() {
 
   const initAudio = async () => {
     if (audioEngine.current) return;
+    if (initAudioPromiseRef.current) return initAudioPromiseRef.current;
 
-    try {
-      await Tone.start();
+    initAudioPromiseRef.current = (async () => {
+      try {
+        await Tone.start();
 
-      const reverb = new Tone.Reverb({ decay: 2, wet: reverbWet });
-      const delay = new Tone.FeedbackDelay("8n", delayWet);
-      reverb.connect(delay);
-      delay.toDestination();
+        const reverb = new Tone.Reverb({ decay: 2, wet: reverbWet });
+        const delay = new Tone.FeedbackDelay("8n", delayWet);
 
-      const kick = new Tone.MembraneSynth().connect(reverb);
-      const snare = new Tone.NoiseSynth({
-        noise: { type: "white" },
-        envelope: { attack: 0.001, decay: 0.15, sustain: 0 },
-      }).connect(reverb);
-      const hat = new Tone.NoiseSynth({
-        noise: { type: "white" },
-        envelope: { attack: 0.001, decay: 0.05, sustain: 0 },
-      }).connect(reverb);
-      const bass = new Tone.Synth({ oscillator: { type: "sine" } }).connect(reverb);
+        reverb.connect(delay);
+        delay.toDestination();
 
-      const melody4 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(reverb);
-      const melody5 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(reverb);
-      const melody6 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(reverb);
-      const melody7 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(reverb);
+        const kick = new Tone.MembraneSynth().connect(reverb);
+        const snare = new Tone.NoiseSynth({
+          noise: { type: "white" },
+          envelope: { attack: 0.001, decay: 0.15, sustain: 0 },
+        }).connect(reverb);
+        const hat = new Tone.NoiseSynth({
+          noise: { type: "white" },
+          envelope: { attack: 0.001, decay: 0.05, sustain: 0 },
+        }).connect(reverb);
+        const bass = new Tone.Synth({ oscillator: { type: "sine" } }).connect(reverb);
 
-      const metronome = new Tone.Synth({
-        oscillator: { type: "square" },
-        envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.01 },
-      }).connect(reverb);
+        const melody4 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(reverb);
+        const melody5 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(reverb);
+        const melody6 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(reverb);
+        const melody7 = new Tone.Synth({ oscillator: { type: "triangle" } }).connect(reverb);
 
-      audioEngine.current = {
-        reverb,
-        delay,
-        instruments: [kick, snare, hat, bass, melody4, melody5, melody6, melody7],
-        metronome,
-      };
+        const metronome = new Tone.Synth({
+          oscillator: { type: "square" },
+          envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.01 },
+        }).connect(reverb);
 
-      console.log("Audio engine initialized");
-    } catch (err) {
-      console.error("initAudio failed:", err);
-    }
+        audioEngine.current = {
+          reverb,
+          delay,
+          instruments: [kick, snare, hat, bass, melody4, melody5, melody6, melody7],
+          metronome,
+        };
+
+        console.log("Audio engine initialized");
+      } catch (err) {
+        console.error("initAudio failed:", err);
+        throw err;
+      } finally {
+        initAudioPromiseRef.current = null;
+      }
+    })();
+
+    return initAudioPromiseRef.current;
   };
 
   const ensureMicPermission = async () => {
     try {
-      if (streamRef.current && streamRef.current.getTracks?.().some((t) => t.readyState === "live")) {
+      if (
+        streamRef.current &&
+        streamRef.current.getTracks?.().some((t) => t.readyState === "live")
+      ) {
         setMicReady(true);
         return streamRef.current;
       }
@@ -352,7 +332,6 @@ export default function Studio() {
     }
   };
 
-  // Audio unlock on any interaction, no preventDefault
   useEffect(() => {
     let unlocked = false;
 
@@ -375,7 +354,9 @@ export default function Studio() {
     };
 
     const events = ["click", "touchstart", "pointerdown", "mousedown"];
-    events.forEach((event) => window.addEventListener(event, unlockAudio, { passive: true }));
+    events.forEach((event) =>
+      window.addEventListener(event, unlockAudio, { passive: true })
+    );
 
     return () => {
       events.forEach((event) => window.removeEventListener(event, unlockAudio));
@@ -386,16 +367,25 @@ export default function Studio() {
     Tone.Transport.bpm.value = bpm;
   }, [bpm]);
 
-  useEffect(() => {
-    if (!isPlaying) {
+  const hardStopTransport = () => {
+    try {
       if (transportIdRef.current !== null) {
         Tone.Transport.clear(transportIdRef.current);
         transportIdRef.current = null;
       }
       Tone.Transport.stop();
       Tone.Transport.position = 0;
+      Tone.Transport.cancel(0); // SAFE ADD: clears any scheduled events, prevents stacked playback
       stepRef.current = 0;
       setPlayStep(0);
+    } catch (e) {
+      console.error("hardStopTransport failed:", e);
+    }
+  };
+
+  useEffect(() => {
+    if (!isPlaying) {
+      hardStopTransport();
       return;
     }
 
@@ -406,14 +396,7 @@ export default function Studio() {
         await Tone.start();
         if (!audioEngine.current) await initAudio();
 
-        Tone.Transport.stop();
-        Tone.Transport.position = 0;
-        stepRef.current = 0;
-
-        if (transportIdRef.current !== null) {
-          Tone.Transport.clear(transportIdRef.current);
-          transportIdRef.current = null;
-        }
+        hardStopTransport();
 
         transportIdRef.current = Tone.Transport.scheduleRepeat((time) => {
           const step = stepRef.current;
@@ -440,11 +423,7 @@ export default function Studio() {
 
     return () => {
       disposed = true;
-      if (transportIdRef.current !== null) {
-        Tone.Transport.clear(transportIdRef.current);
-        transportIdRef.current = null;
-      }
-      Tone.Transport.stop();
+      hardStopTransport();
     };
   }, [isPlaying, bpm]);
 
@@ -477,7 +456,9 @@ export default function Studio() {
   const toggleStep = (trackIndex, stepIndex) => {
     setTracks((prev) => {
       const newTracks = prev.map((row, i) =>
-        i === trackIndex ? row.map((cell, j) => (j === stepIndex ? !cell : cell)) : row
+        i === trackIndex
+          ? row.map((cell, j) => (j === stepIndex ? !cell : cell))
+          : row
       );
 
       setHistory((prevHistory) => {
@@ -549,7 +530,10 @@ export default function Studio() {
         recorder.startRecording();
         setIsRecording(true);
         setRecordingTime(0);
-        timerRef.current = setInterval(() => setRecordingTime((t) => t + 1), 1000);
+        timerRef.current = setInterval(
+          () => setRecordingTime((t) => t + 1),
+          1000
+        );
       } catch (err) {
         console.error("Mic access denied:", err);
         showToast("Microphone permission denied", "error");
@@ -603,7 +587,8 @@ export default function Studio() {
     }
   };
 
-  const onClear = () => setTracks(Array.from({ length: 8 }, () => Array(16).fill(false)));
+  const onClear = () =>
+    setTracks(Array.from({ length: 8 }, () => Array(16).fill(false)));
 
   const onSave = () => comingSoon("Saving beats");
   const onExport = () => comingSoon("Export");
@@ -717,7 +702,8 @@ export default function Studio() {
         >
           <div style={{ fontSize: 48, marginBottom: 20 }}>RECORDING...</div>
           <div style={{ fontSize: 24, marginBottom: 30 }}>
-            {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, "0")}
+            {Math.floor(recordingTime / 60)}:
+            {(recordingTime % 60).toString().padStart(2, "0")}
           </div>
           <div style={{ display: "flex", gap: 20 }}>
             <button style={controlBtn} {...tap(() => setMonitorBeat((p) => !p))}>
@@ -753,8 +739,19 @@ export default function Studio() {
           }}
         >
           <h2 style={{ marginBottom: 20 }}>Recording Complete</h2>
-          <audio controls src={recordedUrl} style={{ marginBottom: 30, width: "80%", maxWidth: 400 }} />
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
+          <audio
+            controls
+            src={recordedUrl}
+            style={{ marginBottom: 30, width: "80%", maxWidth: 400 }}
+          />
+          <div
+            style={{
+              display: "flex",
+              gap: 16,
+              flexWrap: "wrap",
+              justifyContent: "center",
+            }}
+          >
             <button style={controlBtn} {...tap(handleKeepFull)}>
               Keep Full
             </button>
@@ -771,7 +768,14 @@ export default function Studio() {
         </div>
       )}
 
-      <div style={{ width: isMobile ? "100%" : 280, display: "flex", flexDirection: "column", gap: 16 }}>
+      <div
+        style={{
+          width: isMobile ? "100%" : 280,
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+        }}
+      >
         <div
           style={{
             border: "1px solid rgba(0,255,255,0.15)",
@@ -781,35 +785,42 @@ export default function Studio() {
           }}
         >
           <h3 style={{ color: "#00ffff", marginBottom: 12 }}>Samples</h3>
-          {["Kick 808", "Snare Tight", "HiHat Trap", "Sub Bass", "Pluck Melody", ...Object.keys(customSamples)].map(
-            (sample) => (
-              <div
-                key={sample}
-                {...tap(() => {
-                  setSelectedSample(sample);
-                  const updated = [...tracksMeta];
-                  updated[0].assignedSample = sample;
-                  setTracksMeta(updated);
-                  previewSample(sample);
-                })}
-                style={{
-                  padding: "8px 10px",
-                  marginBottom: 8,
-                  borderRadius: 10,
-                  cursor: "pointer",
-                  background:
-                    selectedSample === sample ? "rgba(0,255,255,0.25)" : "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(0,255,255,0.25)",
-                  transition: "all 0.15s ease",
-                  fontSize: 13,
-                  touchAction: "manipulation",
-                  WebkitTapHighlightColor: "transparent",
-                }}
-              >
-                {sample}
-              </div>
-            )
-          )}
+          {[
+            "Kick 808",
+            "Snare Tight",
+            "HiHat Trap",
+            "Sub Bass",
+            "Pluck Melody",
+            ...Object.keys(customSamples),
+          ].map((sample) => (
+            <div
+              key={sample}
+              {...tap(() => {
+                setSelectedSample(sample);
+                const updated = [...tracksMeta];
+                updated[0].assignedSample = sample;
+                setTracksMeta(updated);
+                previewSample(sample);
+              })}
+              style={{
+                padding: "8px 10px",
+                marginBottom: 8,
+                borderRadius: 10,
+                cursor: "pointer",
+                background:
+                  selectedSample === sample
+                    ? "rgba(0,255,255,0.25)"
+                    : "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(0,255,255,0.25)",
+                transition: "all 0.15s ease",
+                fontSize: 13,
+                touchAction: "manipulation",
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              {sample}
+            </div>
+          ))}
         </div>
 
         <div
@@ -823,7 +834,9 @@ export default function Studio() {
             gap: 8,
           }}
         >
-          <h3 style={{ color: "#00ffff", marginBottom: 8, fontSize: 14 }}>Effects Chain</h3>
+          <h3 style={{ color: "#00ffff", marginBottom: 8, fontSize: 14 }}>
+            Effects Chain
+          </h3>
           <EffectsRack
             reverbWet={reverbWet}
             setReverbWet={setReverbWet}
@@ -851,7 +864,13 @@ export default function Studio() {
         </div>
       </div>
 
-      <div style={{ flex: 1, paddingRight: isMobile ? 8 : 12, paddingBottom: isMobile ? 16 : 20 }}>
+      <div
+        style={{
+          flex: 1,
+          paddingRight: isMobile ? 8 : 12,
+          paddingBottom: isMobile ? 16 : 20,
+        }}
+      >
         <div
           style={{
             display: "flex",
@@ -924,7 +943,14 @@ export default function Studio() {
             ○ Rec <span style={{ opacity: 0.85 }}>(Soon)</span>
           </button>
 
-          <div style={{ display: "flex", gap: 8, marginLeft: "auto", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              marginLeft: "auto",
+              flexWrap: "wrap",
+            }}
+          >
             <button style={controlBtn} {...tap(() => comingSoon("Wallet connect"))}>
               Connect (Soon)
             </button>
@@ -932,7 +958,9 @@ export default function Studio() {
             <button
               style={{
                 ...controlBtn,
-                background: chatOpen ? "rgba(0,255,255,0.22)" : "rgba(0,255,255,0.10)",
+                background: chatOpen
+                  ? "rgba(0,255,255,0.22)"
+                  : "rgba(0,255,255,0.10)",
                 borderColor: "rgba(0,255,255,0.45)",
                 display: "flex",
                 alignItems: "center",
@@ -971,7 +999,14 @@ export default function Studio() {
               boxShadow: "0 0 40px rgba(0,255,255,0.35)",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 10,
+              }}
+            >
               <h3 style={{ margin: 0 }}>Circuit Assistant</h3>
               <button style={controlBtn} {...tap(() => setChatOpen(false))}>
                 Close
@@ -993,7 +1028,10 @@ export default function Studio() {
                   key={i}
                   style={{
                     alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
-                    background: msg.role === "user" ? "rgba(0,255,255,0.2)" : "rgba(255,255,255,0.08)",
+                    background:
+                      msg.role === "user"
+                        ? "rgba(0,255,255,0.2)"
+                        : "rgba(255,255,255,0.08)",
                     padding: "8px 12px",
                     borderRadius: 10,
                     maxWidth: "80%",
@@ -1039,11 +1077,22 @@ export default function Studio() {
           </div>
         )}
 
-        <div style={{ paddingRight: isMobile ? 10 : 14, paddingBottom: isMobile ? 18 : 24 }}>
+        <div
+          style={{
+            paddingRight: isMobile ? 10 : 14,
+            paddingBottom: isMobile ? 18 : 24,
+          }}
+        >
           {tracks.map((track, trackIndex) => (
             <div
               key={trackIndex}
-              style={{ display: "flex", alignItems: "center", marginTop: 10, padding: 6, borderRadius: 10 }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginTop: 10,
+                padding: 6,
+                borderRadius: 10,
+              }}
             >
               <div style={{ width: 110, marginRight: 8, fontSize: 10, opacity: 0.9 }}>
                 <div style={{ marginBottom: 4, color: "white", fontWeight: 400 }}>
@@ -1063,7 +1112,10 @@ export default function Studio() {
                       height: 32,
                       borderRadius: 8,
                       background: step ? "#00ffff" : "rgba(255,255,255,0.08)",
-                      border: isPlaying && playStep === stepIndex ? "2px solid #ffffff" : "1px solid rgba(0,255,255,0.2)",
+                      border:
+                        isPlaying && playStep === stepIndex
+                          ? "2px solid #ffffff"
+                          : "1px solid rgba(0,255,255,0.2)",
                       boxShadow: step ? "0 0 12px rgba(0,255,255,0.6)" : "none",
                       cursor: "pointer",
                       touchAction: "none",
@@ -1100,12 +1152,17 @@ export default function Studio() {
               }}
             />
             <button
-              style={{ ...controlBtn, background: "rgba(0,180,255,0.2)", borderColor: "#00aaff" }}
+              style={{
+                ...controlBtn,
+                background: "rgba(0,180,255,0.2)",
+                borderColor: "#00aaff",
+              }}
               {...tap(() => {
-                const commentText = "Check out this beat I made on Circuit! #Web3Music #MusicProd";
-                const url = `https://x.com/intent/tweet?text=${encodeURIComponent(commentText)}&url=${encodeURIComponent(
-                  "https://circuit.skr"
-                )}`;
+                const commentText =
+                  "Check out this beat I made on Circuit! #Web3Music #MusicProd";
+                const url = `https://x.com/intent/tweet?text=${encodeURIComponent(
+                  commentText
+                )}&url=${encodeURIComponent("https://circuit.skr")}`;
                 window.open(url, "_blank");
               })}
             >
