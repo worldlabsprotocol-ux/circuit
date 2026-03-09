@@ -1,153 +1,145 @@
-# Circuit
+Circuit
 
-**Production is programmable infrastructure.**  
-Circuit is a mobile-first production environment built on Solana.  
-It embeds ownership, splits, and distribution logic directly into the act of creation.  
-Music is no longer exported into monetization systems.  
-Monetization is defined at the moment of production.
+Circuit is a mobile-first beat lab on Solana.
+Creators build loops in seconds, remix instantly, record, and export from their phone.
+On-chain ownership, splits, and royalties ship next.
 
-## The Structural Misalignment
+Born: Feb 15, 2026
+Built for: Solana Mobile (Seeker)
 
-Modern music infrastructure is fragmented:
-- Production tools optimize for workflow
-- Distribution platforms optimize for revenue capture
-- Ownership logic is added later
-- Royalty routing remains opaque
-- Creators operate inside systems they do not control
 
-This separation is architectural.  
-Creation and monetization live in different layers of the stack.  
-Circuit collapses them into one.
+---
 
-## The Primitive
+The Problem
 
-Circuit treats production as a programmable economic surface.  
-When a beat is created:
-- Split logic can be defined
-- Ownership can be attached
-- Revenue routes can be modeled
-- Distribution paths can be pre-structured
+Music creation is mobile now, but serious beatmaking still assumes a laptop workflow.
+Creators capture ideas on phones, then lose momentum when tools feel slow, heavy, or fragmented.
+Ownership and royalties get bolted on later, and split logic stays painful to coordinate.
 
-Creation is not upstream from ownership.  
-It is ownership.
+Circuit closes that gap with a fast, mobile-native loop workflow, then brings ownership and royalties into the same surface over time.
 
-## Why Solana
 
-Solana provides:
-- Low latency execution
-- Near-zero transaction costs
-- Composable smart contracts
-- Mobile-native secure signing (Seed Vault)
+---
 
-Solana Mobile (Seeker) transforms the device into:
-- A production terminal
-- A wallet-native signing environment
-- A portable ownership interface
+What Circuit Does
 
-Circuit is designed for that environment.
+One sentence:
+Circuit turns your phone into a beat lab: tap a loop, remix it instantly, record, and export, with a clear path to on-chain ownership and royalties.
 
-## Current Capabilities
 
-### Production Layer
-- 16-step sequencer
-- Multi-track layering
-- Real-time audio engine (Web Audio API)
-- Track-level volume / pan / mute / solo
-- Microphone recording with live waveform overlay
-- Touch-enabled grid interaction (drag to slide)
-- BPM control + metronome
-- Dark / light mode
+---
 
-### Ownership & Sharing
-- Session sharing links
-- Fork logic with split inheritance
-- Creator profile display
-- Like / Follow system
-- Trending session feed
+How It Works
 
-### Royalty Modeling
-- Interactive split allocation
-- Pie chart visualization
-- Projected earnings calculator
-- Revenue modeling interface
+1. Pick a kit and BPM
 
-### Export
-- WAV export
-- MP3 placeholder export
-- Share session links
 
-**Note on Audio & Kits**  
-Audio samples, drum kits, and sound packs will be updated and expanded in future releases. Current samples are placeholders for testing/production preview. More high-quality, royalty-free kits (including Solana-themed/electronic packs) coming soon.
+2. Tap a 16-step grid, Remix for variations, shape sound with effects
 
-## Architecture Direction
 
-Circuit is evolving toward programmable enforcement.
+3. Record, chop into samples, layer, and export
 
-**Phase 1 — Production + Modeling (Live)**  
-- Creation interface
-- Split visualization
-- Social discovery
-- Mobile-native experience
 
-**Phase 2 — On-Chain Split Enforcement**  
-- Smart contract split storage
-- Automatic revenue routing
-- Immutable royalty execution
 
-**Phase 3 — Native Marketplace**  
-- Beat uploads
-- License configuration
-- On-chain purchase settlement
-- Instant wallet distribution
 
-**Phase 4 — Governance & Composability**  
-- DAO participation
-- Programmable allocation primitives
-- Open APIs for integrations
+---
 
-## Long-Term Positioning
+Current Product Status
 
-Circuit is not a beat app.  
-It is production infrastructure.  
+Live Today
 
-As creators adopt programmable splits at creation:
-- Distribution becomes composable
-- Royalty enforcement becomes deterministic
-- Creator leverage increases
-- Economic coordination moves upstream
+16-step sequencer with multi-track layering
 
-Production becomes the economic control layer.
+One-tap Remix for instant variations
 
-## Tech Stack
+Real-time audio engine (Tone.js / Web Audio)
 
-**Frontend**  
-- React  
-- Web Audio API  
-- Mobile-first layout  
+Effects rack (EQ, compression, filter, distortion, master gain)
 
-**Blockchain**  
-- Solana  
-- Wallet integration  
-- Future Metaplex NFT support  
-- Future programmable royalty contracts  
+Track controls (volume, pan, mute, solo)
 
-## Status
+BPM control and metronome
 
-Originally conceptualized in 2023 under World Labs.  
-Now built as a Solana-native decentralized application.  
-This is the first full production-grade dApp iteration.  
-The architecture is being hardened.
+Microphone recording flow with playback
 
-## Vision
+Mobile-first touch interactions (Seeker-friendly)
 
-Circuit becomes the default surface where:  
-Creators make.  
-Creators own.  
-Creators distribute.  
-Creators monetize.  
-From a single interface.  
-On mobile.  
-On-chain.
+Export flow (preview/export messaging)
 
-Built on Solana  
+
+Coming Soon
+
+Wallet connect inside Seeker builds
+
+Save beats to identity
+
+Sharing links and remix attribution
+
+Minting, royalty splits, and claims dashboard
+
+Marketplace actions (packs, drops, licensing)
+
+
+
+---
+
+Why Solana
+
+Solana is the execution layer for ownership and distribution.
+Solana Mobile (Seeker) makes the phone a wallet-native environment with secure signing.
+That is the path to creator-native ownership and royalties that do not depend on centralized platforms.
+
+
+---
+
+Roadmap
+
+Now (Hackathon build):
+Mobile Studio MVP shipped, remix + effects + recording + export running on device
+
+Next (30–60 days):
+Saved sessions, share links, creator profiles, onboarding creators for retention
+
+Next (90 days):
+Minting, remix attribution, and automated royalty splits on-chain
+
+
+---
+
+Business Model
+
+Circuit runs as freemium.
+Core creation stays free.
+Revenue comes from premium sound packs, export upgrades, and later protocol fees tied to minting and royalty distribution.
+
+
+---
+
+Tech Stack
+
+Frontend
+
+React
+
+Tone.js / Web Audio API
+
+Capacitor (Android / WebView)
+
+
+Blockchain
+
+Solana
+
+Seeker-first wallet flows (coming soon)
+
+
+
+---
+
+Vision
+
+Circuit is where creators make and publish from their phone, then own and earn from what they ship.
+Creation stays fast; ownership becomes native; royalties become automatic.
+
+Built on Solana
 pabloretroworld.skr
