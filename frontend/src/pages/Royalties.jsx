@@ -11,36 +11,6 @@ export default function Royalties() {
   const comingSoon = (feature = "This feature") =>
     showNotification(`${feature} is coming soon. Thanks for checking it out.`);
 
-  const totalEarnings = 2.5;
-  const pendingEarnings = 1.3;
-
-  const royaltiesData = [
-    {
-      beatName: "Neon Pulse",
-      earnings: 0.5,
-      status: "Pending",
-      collaborators: [
-        { name: "You", share: 70 },
-        { name: "Remixer1", share: 30 },
-      ],
-    },
-    {
-      beatName: "808 Galaxy",
-      earnings: 1.2,
-      status: "Claimed",
-      collaborators: [{ name: "You", share: 100 }],
-    },
-    {
-      beatName: "Solar Bounce",
-      earnings: 0.8,
-      status: "Pending",
-      collaborators: [
-        { name: "You", share: 60 },
-        { name: "VocalistX", share: 40 },
-      ],
-    },
-  ];
-
   return (
     <div
       style={{
@@ -101,7 +71,7 @@ export default function Royalties() {
             textShadow: "0 0 40px rgba(0, 240, 255, 0.25)",
           }}
         >
-          Royalties Dashboard
+          Royalties
         </h1>
 
         <div
@@ -119,10 +89,13 @@ export default function Royalties() {
           <div style={{ fontWeight: 700, marginBottom: 6 }}>
             Wallet connect, claims, and on-chain splits are coming soon.
           </div>
+
           <div style={{ opacity: 0.85, fontSize: "0.98rem" }}>
-            Lifetime Royalties Earned (preview):{" "}
-            <strong>{totalEarnings.toFixed(2)} SOL</strong>, Pending (preview):{" "}
-            <strong>{pendingEarnings.toFixed(2)} SOL</strong>
+            Waitlist live, shipping on-chain splits next.
+          </div>
+
+          <div style={{ opacity: 0.85, fontSize: "0.98rem", marginTop: 6 }}>
+            This page will show your earnings, payouts, and split history once live.
           </div>
 
           <div style={{ marginTop: 12 }}>
@@ -166,135 +139,65 @@ export default function Royalties() {
             textShadow: "0 0 18px rgba(0, 240, 255, 0.35)",
           }}
         >
-          Your Royalties (Preview)
+          Dashboard (Coming Soon)
         </h2>
 
-        <div style={{ overflowX: "auto" }}>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "separate",
-              borderSpacing: "0 0.8rem",
-            }}
-          >
-            <thead>
-              <tr>
-                <th style={{ textAlign: "left", padding: "0.8rem 1rem", color: "#a78bfa", fontWeight: 700 }}>
-                  Beat Name
-                </th>
-                <th style={{ textAlign: "left", padding: "0.8rem 1rem", color: "#a78bfa", fontWeight: 700 }}>
-                  Earnings
-                </th>
-                <th style={{ textAlign: "left", padding: "0.8rem 1rem", color: "#a78bfa", fontWeight: 700 }}>
-                  Collaborators
-                </th>
-                <th style={{ textAlign: "center", padding: "0.8rem 1rem", color: "#a78bfa", fontWeight: 700 }}>
-                  Status
-                </th>
-                <th style={{ textAlign: "center", padding: "0.8rem 1rem", color: "#a78bfa", fontWeight: 700 }}>
-                  Action
-                </th>
-              </tr>
-            </thead>
+        <div
+          style={{
+            padding: "18px 18px",
+            borderRadius: 16,
+            border: "1px solid rgba(0, 240, 255, 0.22)",
+            background: "rgba(0,0,0,0.25)",
+            opacity: 0.9,
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontWeight: 800, color: "#00f0ff", marginBottom: 6 }}>
+            No preview data shown yet
+          </div>
+          <div style={{ fontSize: "1rem", opacity: 0.85 }}>
+            When royalties go live, you will see claimed payouts, pending balances, and split breakdowns here.
+          </div>
 
-            <tbody>
-              {royaltiesData.map((item, index) => (
-                <tr
-                  key={index}
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                  }}
-                >
-                  <td
-                    style={{
-                      padding: "1.1rem 1rem",
-                      borderTopLeftRadius: 12,
-                      borderBottomLeftRadius: 12,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {item.beatName}
-                  </td>
-                  <td style={{ padding: "1.1rem 1rem" }}>
-                    <strong>{item.earnings.toFixed(2)} SOL</strong>
-                  </td>
-                  <td style={{ padding: "1.1rem 1rem", fontSize: "0.95rem", opacity: 0.9 }}>
-                    {item.collaborators.map((c) => `${c.name} (${c.share}%)`).join(", ")}
-                  </td>
-                  <td
-                    style={{
-                      padding: "1.1rem 1rem",
-                      textAlign: "center",
-                      color: item.status === "Pending" ? "#ffcc00" : "#00ff85",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {item.status}
-                  </td>
-                  <td
-                    style={{
-                      textAlign: "center",
-                      padding: "1.1rem 1rem",
-                      borderTopRightRadius: 12,
-                      borderBottomRightRadius: 12,
-                    }}
-                  >
-                    <button
-                      onClick={() => comingSoon("Royalties claiming")}
-                      style={{
-                        padding: "10px 18px",
-                        background: "rgba(255,255,255,0.08)",
-                        border: "1px solid rgba(0, 240, 255, 0.35)",
-                        borderRadius: 999,
-                        color: "#00f0ff",
-                        fontWeight: 700,
-                        cursor: "pointer",
-                      }}
-                    >
-                      {item.status === "Pending" ? "Claim (Soon)" : "Claimed"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Lock Splits replaced */}
-        <div style={{ marginTop: "2rem", textAlign: "center" }}>
           <div
             style={{
-              padding: "16px 18px",
-              borderRadius: 16,
-              border: "1px solid rgba(0, 240, 255, 0.25)",
-              background: "rgba(0,0,0,0.25)",
-              opacity: 0.9,
+              marginTop: 14,
+              display: "flex",
+              justifyContent: "center",
+              gap: "12px",
+              flexWrap: "wrap",
             }}
           >
-            <div style={{ fontWeight: 800, color: "#00f0ff", marginBottom: 6 }}>
-              Royalty Splits
-            </div>
-            <div style={{ fontSize: "1rem", opacity: 0.85 }}>
-              On-chain splits and locking are coming soon.
-            </div>
-            <div style={{ marginTop: 12 }}>
-              <button
-                onClick={() => comingSoon("Royalty split locking")}
-                style={{
-                  padding: "12px 18px",
-                  background: "linear-gradient(90deg, #00f0ff, #a78bfa)",
-                  color: "#000",
-                  border: "none",
-                  borderRadius: 999,
-                  fontWeight: 800,
-                  cursor: "pointer",
-                  boxShadow: "0 0 22px rgba(0, 240, 255, 0.25)",
-                }}
-              >
-                Lock Splits (Soon)
-              </button>
-            </div>
+            <button
+              onClick={() => comingSoon("Royalties claiming")}
+              style={{
+                padding: "12px 18px",
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(0, 240, 255, 0.35)",
+                borderRadius: 999,
+                color: "#00f0ff",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              Claim (Soon)
+            </button>
+
+            <button
+              onClick={() => comingSoon("Royalty splits")}
+              style={{
+                padding: "12px 18px",
+                background: "linear-gradient(90deg, #00f0ff, #a78bfa)",
+                color: "#000",
+                border: "none",
+                borderRadius: 999,
+                fontWeight: 800,
+                cursor: "pointer",
+                boxShadow: "0 0 22px rgba(0, 240, 255, 0.25)",
+              }}
+            >
+              Splits (Soon)
+            </button>
           </div>
         </div>
 
@@ -333,7 +236,11 @@ export default function Royalties() {
             marginHeight="0"
             marginWidth="0"
             title="Circuit Royalties Waitlist"
-            style={{ borderRadius: 16, background: "rgba(0,0,0,0.3)", minHeight: "600px" }}
+            style={{
+              borderRadius: 16,
+              background: "rgba(0,0,0,0.3)",
+              minHeight: "600px",
+            }}
           >
             Loading form...
           </iframe>
