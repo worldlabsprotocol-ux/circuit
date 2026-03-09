@@ -1162,7 +1162,7 @@ export default function Studio() {
                   "Check out this beat I made on Circuit! #Web3Music #MusicProd";
                 const url = `https://x.com/intent/tweet?text=${encodeURIComponent(
                   commentText
-                )}&url=${encodeURIComponent("https://circuit.skr")}`;
+                )}&url=${encodeURIComponent("https://x.com/circuit808")}`;
                 window.open(url, "_blank");
               })}
             >
