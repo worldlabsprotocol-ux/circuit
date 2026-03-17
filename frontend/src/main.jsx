@@ -1,39 +1,68 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";  // ← This is your root with tabs (App.jsx)
+import App from "./App.jsx";
 
+// Import MWA registration
+import { 
+    createDefaultAuthorizationCache, 
+    createDefaultChainSelector, 
+    createDefaultWalletNotFoundHandler,
+    registerMwa, 
+} from '@solana-mobile/wallet-standard-mobile';
+
+// Register Mobile Wallet Adapter (MWA) for Seeker native deep linking
+registerMwa({
+    appIdentity: {
+        name: 'Circuit',
+        uri: 'https://circuit.worldlabs.io',  // your live domain or localhost for dev
+        icon: '/icon.png',  // relative path to your app icon (must exist in public/)
+    },
+    authorizationCache: createDefaultAuthorizationCache(),
+    chains: ['solana:devnet', 'solana:mainnet-beta'],  // add mainnet when ready
+    chainSelector: createDefaultChainSelector(),
+    onWalletNotFound: createDefaultWalletNotFoundHandler(),
+});
+
+// Your existing providers (ConnectionProvider, WalletProvider, etc.)
 import {
-  ConnectionProvider,
-  WalletProvider
+    ConnectionProvider,
+    WalletProvider
 } from "@solana/wallet-adapter-react";
 
 import {
-  WalletModalProvider
+    WalletModalProvider
 } from "@solana/wallet-adapter-react-ui";
 
-import {
-  PhantomWalletAdapter
-} from "@solana/wallet-adapter-wallets";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import { BackpackWalletAdapter } from "@solana/wallet-adapter-backpack";
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
 
 import { clusterApiUrl } from "@solana/web3.js";
 
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-// Devnet for testing (change to 'mainnet-beta' later)
-const endpoint = clusterApiUrl("devnet");
+// Buffer polyfill
+import { Buffer } from 'buffer';
+window.Buffer = Buffer;
+
+const network = "devnet";
+const endpoint = clusterApiUrl(network);
 
 const wallets = [
-  new PhantomWalletAdapter(),
+    new PhantomWalletAdapter(),
+    new BackpackWalletAdapter(),
+    new SolflareWalletAdapter({ network }),
+    // MobileWalletAdapter is now handled by MWA registration above - no need to add it manually
 ];
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
-        <WalletModalProvider>
-          <App />  {/* ← Renders App.jsx which handles tabs and Studio */}
-        </WalletModalProvider>
-      </WalletProvider>
-    </ConnectionProvider>
-  </React.StrictMode>
+    <React.StrictMode>
+        <ConnectionProvider endpoint={endpoint}>
+            <WalletProvider wallets={wallets} autoConnect>
+                <WalletModalProvider>
+                    <App />
+                </WalletModalProvider>
+            </WalletProvider>
+        </ConnectionProvider>
+    </React.StrictMode>
 );

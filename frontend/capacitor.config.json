@@ -1,0 +1,10 @@
+{
+    "appId": "com.worldlabs.circuit",
+    "appName": "Circuit",
+    "webDir": "dist",
+    "bundledWebRuntime": false,
+    "server": {
+      "cleartext": true,
+      "hostname": "localhost"
+    }
+  }

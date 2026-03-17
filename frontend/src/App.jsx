@@ -8,6 +8,33 @@ import Home from "./pages/Home";
 import Studio from "./pages/Studio";
 import Royalties from "./pages/Royalties";
 
+// ─── Wallet Adapter Imports ──────────────────────────────────────
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+
+// ─── Mobile Wallet Adapter (MWA) for Seeker native deep linking ───
+import { 
+  createDefaultAuthorizationCache, 
+  createDefaultChainSelector, 
+  createDefaultWalletNotFoundHandler,
+  registerMwa, 
+} from '@solana-mobile/wallet-standard-mobile';
+
+// Register MWA once (this makes native wallets appear on Seeker)
+registerMwa({
+  appIdentity: {
+    name: 'Circuit',
+    uri: 'https://circuit.worldlabs.io',  // Replace with your real domain (or localhost for dev)
+    icon: '/icon.png',  // Make sure icon.png exists in public/ folder
+  },
+  authorizationCache: createDefaultAuthorizationCache(),
+  chains: ['solana:devnet', 'solana:mainnet-beta'],  // Add mainnet when ready
+  chainSelector: createDefaultChainSelector(),
+  onWalletNotFound: createDefaultWalletNotFoundHandler(),
+});
+
+console.log("Mobile Wallet Adapter registered for Seeker native support");
+
+// Your tabs
 const TABS = ["Explore", "Studio", "Royalties"];
 
 // Accept: "#studio", "#Studio", "#/studio", "#/Studio"
@@ -29,7 +56,6 @@ function App() {
   const goToTab = useCallback((tab) => {
     if (!TABS.includes(tab)) return;
     setActiveTab(tab);
-    // write lowercase for nice URLs, App can read both
     window.location.hash = `#${tab.toLowerCase()}`;
   }, []);
 
@@ -54,6 +80,17 @@ function App() {
       <div style={{ position: "relative", zIndex: 2, color: "#0ff" }}>
         <header style={{ padding: "2rem", textAlign: "center" }}>
           <h1 style={{ fontSize: "3rem" }}>CIRCUIT</h1>
+
+          {/* Wallet Button – now supports native Seeker deep linking via MWA */}
+          <div style={{ marginTop: "1.5rem" }}>
+            <WalletMultiButton
+              className="!bg-gradient-to-r !from-cyan-500 !to-purple-600 !text-white !font-medium !px-6 !py-3 !rounded-full !shadow-lg !shadow-cyan-500/30 hover:!brightness-110 !transition-all !duration-300 !border-none"
+              style={{
+                fontSize: "1rem",
+                minWidth: "160px",
+              }}
+            />
+          </div>
         </header>
 
         <main style={{ padding: "1rem", paddingBottom: "5rem" }}>
